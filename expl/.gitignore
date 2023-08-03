@@ -1,0 +1,13 @@
+expl-bin
+ltranslate
+lex.yy.c
+ltranslate.lex.c
+y.tab.c
+y.tab.h
+*~
+*.xsm
+*.temp
+*.o
+expl_progs/
+.DS_Store
+.vscode/*

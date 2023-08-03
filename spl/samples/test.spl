@@ -1,0 +1,8 @@
+start:
+R0 = "HELLO_WORLD";
+print R0;
+R1 = TIMER;
+print R1;
+goto start;
+multipush (R1,PTLR,R2,PTBR);
+multipop (R1,PTLR,R2,PTBR);
