@@ -4,10 +4,10 @@ lex.yy.c
 y.tab.c
 y.tab.h
 *~
-*.xsm
+# *.xsm
 *.temp
 *.o
-*xsm
-spl_progs/
+# *xsm
+# spl_progs/
 .DS_Store
 .vscode/
