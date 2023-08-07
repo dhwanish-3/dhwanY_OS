@@ -5,9 +5,9 @@ ltranslate.lex.c
 y.tab.c
 y.tab.h
 *~
-*.xsm
+# *.xsm
 *.temp
 *.o
-expl_progs/
+# expl_progs/
 .DS_Store
 .vscode/*
