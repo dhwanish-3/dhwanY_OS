@@ -1,5 +1,9 @@
-MOV R0, "eXception occured"
+MOV R0, "eXception"
+MOV R1, "occured"
 MOV R16, R0
+PORT P1, R16
+OUT
+MOV R16, R1
 PORT P1, R16
 OUT
 HALT
