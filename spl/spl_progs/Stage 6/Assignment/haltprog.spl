@@ -1,0 +1,5 @@
+R0 = "eXception";
+R1 = "occured";
+print R0;
+print R1;
+halt;

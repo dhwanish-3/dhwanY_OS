@@ -1,0 +1,30 @@
+// loading INIT program from disk 7-8 to mem 65-66
+loadi(65,7);
+loadi(66,8);
+
+// loading INT 10 code from disk 35-36 to mem 22-23
+loadi(22,35);
+loadi(23,36);
+
+// loading ExHanding code from disk 15-16 to mem 2-3
+loadi(2,15);
+loadi(3,16);
+
+// initializing PTBR to default - 29696
+PTBR = PAGE_TABLE_BASE;
+
+// INIT Program needs 3 pages of memory
+PTLR = 3;
+
+// initialize page table for INIT Program
+[PTBR+0] =  65;
+[PTBR+1] = "0100";	// code page should be read only 
+[PTBR+2] = 66;
+[PTBR+3] = "0100";
+[PTBR+4] = 76;
+[PTBR+5] = "0110";	// stack should be read+write
+
+[76*512] = 2048;	// IP When INIT program starts
+SP = 2*512;
+
+ireturn;
