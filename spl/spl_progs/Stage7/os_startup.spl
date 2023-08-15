@@ -1,4 +1,4 @@
-// loading Library code from disk 13-14 to mem -64
+// loading Library code from disk 13-14 to mem 63-64
 loadi(63,13);
 loadi(64,14);
 
