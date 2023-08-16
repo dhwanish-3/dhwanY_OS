@@ -1,0 +1,19 @@
+// Store user SP to UPTR in process table - 13th word
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]) * 16 + 13] = SP;
+
+
+// Set SP to start of kernel stack
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]) * 16 + 11] * 512 - 1;
+
+backup;
+
+print "TIMER";
+
+print "Current PID";
+print [SYSTEM_STATUS_TABLE + 1];
+
+restore;
+
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
+ireturn;

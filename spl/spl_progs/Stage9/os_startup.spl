@@ -1,0 +1,67 @@
+// loading Timer interrupt routine from disk 17-18 to mem 4-5
+loadi(4, 17);
+loadi(5, 18);
+
+// loading Library code from disk 13-14 to mem 63-64
+loadi(63,13);
+loadi(64,14);
+
+// loading INIT program from disk 7-8 to mem 65-66
+loadi(65,7);
+loadi(66,8);
+
+// loading INT 10 code from disk 35-36 to mem 22-23
+loadi(22,35);
+loadi(23,36);
+
+// loading ExHanding code from disk 15-16 to mem 2-3
+loadi(2,15);
+loadi(3,16);
+
+// initializing PTBR to default - 29696
+PTBR = PAGE_TABLE_BASE;
+
+// INIT Program needs 3 pages of memory
+PTLR = 10;
+
+// initialize page table for INIT Program
+//Library
+[PTBR+0] = 63;
+[PTBR+1] = "0100";
+[PTBR+2] = 64;
+[PTBR+3] = "0100";
+
+//Heap
+[PTBR+4] = 78;
+[PTBR+5] = "0110";
+[PTBR+6] = 79;
+[PTBR+7] = "0110";
+
+//Code
+[PTBR+8] = 65;
+[PTBR+9] = "0100";
+[PTBR+10] = 66;
+[PTBR+11] = "0100";
+[PTBR+12] = -1;
+[PTBR+13] = "0000";
+[PTBR+14] = -1;
+[PTBR+15] = "0000";
+
+//Stack
+[PTBR+16] = 76;
+[PTBR+17] = "0110";
+[PTBR+18] = 77;
+[PTBR+19] = "0110";
+
+
+[76*512] = [65 * 512 + 1];	// IP When INIT program starts
+SP = 8*512;
+
+// Setting up process able
+[PROCESS_TABLE + 11] = 80;
+[PROCESS_TABLE + 1] = 0;
+
+// System status table
+[SYSTEM_STATUS_TABLE + 1] = 0;
+
+ireturn;
