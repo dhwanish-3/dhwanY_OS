@@ -1,0 +1,49 @@
+//Set mode flag to system call number
+[(PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16)+ 9] = 5;
+
+alias userSP R0;
+userSP = SP;
+
+//Store user stack pointer in UPTR
+[(PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16)+13] = userSP;
+
+//Set SP to start of kernel stack (User area)
+SP = [(PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16)+11]*512;
+
+alias physicalPageNum R1;
+alias offset R2;
+alias fileDescPhysicalAddr R3;
+
+physicalPageNum = [PTBR + 2*((userSP-4)/512)];
+offset = (userSP-4) % 512;
+fileDescPhysicalAddr = (physicalPageNum*512) + offset;
+
+alias fileDescriptor R4;
+fileDescriptor = [fileDescPhysicalAddr];
+if(fileDescriptor!=-2) then
+
+	physicalPageNum = [PTBR + 2*((userSP-1)/512)];
+	offset = (userSP-1) % 512;
+	
+	alias returnAddr R5;
+	returnAddr = (physicalPageNum*512) + offset;
+	[returnAddr] = -1;
+else
+	physicalPageNum = [PTBR + 2*((userSP-3)/512)];
+        offset = (userSP-3) % 512;
+
+	alias word R5;
+	word = [(physicalPageNum*512) + offset];
+	print word;
+
+	physicalPageNum = [PTBR + 2*((userSP-1)/512)];
+        offset = (userSP-1) % 512;
+
+        alias returnAddr R6;
+        returnAddr = (physicalPageNum*512) + offset;
+        [returnAddr] = 0;
+endif;
+
+SP = userSP;
+[(PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1]*16)+ 9] = 0;
+ireturn;

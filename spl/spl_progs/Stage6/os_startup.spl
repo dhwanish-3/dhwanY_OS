@@ -24,7 +24,7 @@ PTLR = 3;
 [PTBR+4] = 76;
 [PTBR+5] = "0110";	// stack should be read+write
 
-[76*512] = 2048;	// IP When INIT program starts
+[76*512] = 0;	// IP When INIT program starts
 SP = 2*512;
 
 ireturn;
