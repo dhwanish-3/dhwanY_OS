@@ -1,0 +1,15 @@
+int main () {
+    decl
+        int temp, d, a;
+    enddecl
+    begin
+        a = 1;
+        d = 1;
+        while (a <= 10) do
+            d = d * a;
+            temp = exposcall("Write", -2, d);
+            a = a + 1;
+        endwhile;
+        return 0;
+    end
+}

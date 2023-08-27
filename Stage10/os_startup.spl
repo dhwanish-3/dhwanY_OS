@@ -1,4 +1,4 @@
-//loading int 7 code from disk 29-30 to mem 16-17
+// loading int 7 code from disk 29-30 to mem 16-17
 loadi(16, 29);
 loadi(17, 30);
 
@@ -22,12 +22,10 @@ loadi(5,18);
 loadi(2,15);
 loadi(3,16);
 
-breakpoint;
-
 // initializing PTBR to default - 29696
 PTBR = PAGE_TABLE_BASE;
 
-// INIT Program needs 3 pages of memory
+// INIT Program needs 10 pages of memory
 PTLR = 10;
 
 // initialize page table for INIT Program

@@ -1,0 +1,127 @@
+// load the idle code from disk blocks 11-12 to memory page 69-70
+loadi(69, 11);
+loadi(70, 12);
+
+// load int 7 code from disk 29-30 to memory 16-17
+loadi(16, 29);
+loadi(17, 30);
+
+// load library code from disk 13-14 to memory 63-64
+loadi(63, 13);
+loadi(64, 14);
+
+// load init code from disk 7-8 to memory 65-66
+loadi(65, 7);
+loadi(66, 8);
+
+// load int 10 code from disk 35-36 to memory 22-23
+loadi(22, 35);
+loadi(23, 36);
+
+// load timer interrupt code from disk 17-18 to memory 4-5
+loadi(4, 17);
+loadi(5, 18);
+
+// load ExHandling code from disk 15-16 to memory 2-3
+loadi(2, 15);
+loadi(3, 16);
+
+PTBR = PAGE_TABLE_BASE; // as PID(idle) = 0
+PTLR = 10;
+
+// Library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+// Heap
+[PTBR + 4] = -1;
+[PTBR + 5] = "0000";
+[PTBR + 6] = -1;
+[PTBR + 7] = "0000";
+
+// Code
+[PTBR + 8] = 69;
+[PTBR + 9] = "0100";
+[PTBR + 10] = 70;
+[PTBR + 11] = "0100";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+// Stack
+[PTBR + 16] = 81;
+[PTBR + 17] = "0110";
+[PTBR + 18] = -1;
+[PTBR + 19] = "0000";
+
+[81 * 512] = [69 * 512 + 1];  // IP when idle starts
+
+breakpoint;
+
+// INIT program needs 10 pages of memory
+PTBR = PAGE_TABLE_BASE + 20;
+PTLR = 10;
+
+// Initialize the page table for INIT program
+// library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+// Heap
+[PTBR + 4] = 78;
+[PTBR + 5] = "0110";
+[PTBR + 6] = 79;
+[PTBR + 7] = "0110";
+
+// code
+[PTBR + 8] = 65;
+[PTBR + 9] = "0100";
+[PTBR + 10] = 66;
+[PTBR + 11] = "0100";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+// Stack
+[PTBR + 16] = 76;
+[PTBR + 17] = "0110";
+[PTBR + 18] = 77;
+[PTBR + 19] = "0110";
+
+[76 * 512] = [65 * 512 + 1]; // IP when init starts
+
+breakpoint;
+
+// Setting up process table for IDLE
+[PROCESS_TABLE + 1] = 0;
+[PROCESS_TABLE + 4] = CREATED;
+[PROCESS_TABLE + 11] = 82;
+[PROCESS_TABLE + 13] = 8 * 512;
+[PROCESS_TABLE + 12] = 0;
+[PROCESS_TABLE + 14] = PAGE_TABLE_BASE;
+[PROCESS_TABLE + 15] = 10;
+
+breakpoint;
+
+// setting up process table for INIT
+[PROCESS_TABLE + 16 + 1] = 1;
+[PROCESS_TABLE + 16 + 4] = RUNNING;
+[PROCESS_TABLE + 16 + 11] = 80;
+[PROCESS_TABLE + 16 + 13] = 8 * 512;
+[PROCESS_TABLE + 16 + 12] = 0;
+[PROCESS_TABLE + 16 + 14] = PAGE_TABLE_BASE + 20;
+[PROCESS_TABLE + 16 + 15] = 10;
+
+// Initialize SP to logical address
+SP = 8 * 512;
+
+// System status table
+[SYSTEM_STATUS_TABLE + 1] = 1; // PID(init) = 1
+
+ireturn;

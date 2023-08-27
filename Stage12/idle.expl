@@ -1,0 +1,11 @@
+int main () {
+    decl
+        int s;
+    enddecl
+    begin
+        while (3 == 3) do
+            s = 3;
+        endwhile;
+        return 0;
+    end
+}
