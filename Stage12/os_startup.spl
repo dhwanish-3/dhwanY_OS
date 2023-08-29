@@ -59,8 +59,6 @@ PTLR = 10;
 
 [81 * 512] = [69 * 512 + 1];  // IP when idle starts
 
-breakpoint;
-
 // INIT program needs 10 pages of memory
 PTBR = PAGE_TABLE_BASE + 20;
 PTLR = 10;
@@ -96,8 +94,6 @@ PTLR = 10;
 
 [76 * 512] = [65 * 512 + 1]; // IP when init starts
 
-breakpoint;
-
 // Setting up process table for IDLE
 [PROCESS_TABLE + 1] = 0;
 [PROCESS_TABLE + 4] = CREATED;
@@ -106,8 +102,6 @@ breakpoint;
 [PROCESS_TABLE + 12] = 0;
 [PROCESS_TABLE + 14] = PAGE_TABLE_BASE;
 [PROCESS_TABLE + 15] = 10;
-
-breakpoint;
 
 // setting up process table for INIT
 [PROCESS_TABLE + 16 + 1] = 1;

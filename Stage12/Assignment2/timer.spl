@@ -1,3 +1,5 @@
+breakpoint;
+
 // Store user SP to UPTR in process table -> 13 th word
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
 
@@ -52,4 +54,7 @@ restore;
 
 [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 12] = 0;
 SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+
+breakpoint;
+
 ireturn;
