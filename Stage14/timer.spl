@@ -1,0 +1,23 @@
+// Store user SP to UPTR in process table -> 13 th word
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+// Set SP to start of Kernel stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+backup;
+
+// obtaining PID of the currently executing process
+alias currentPID R0;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+
+alias process_table_entry R1;
+process_table_entry = PROCESS_TABLE + currentPID * 16;
+
+[process_table_entry + 4] = READY;
+
+call MOD_5;
+
+restore;
+
+SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+[PROCESS_TABLE + 16 *[SYSTEM_STATUS_TABLE + 1] + 9] = 0;
+ireturn;

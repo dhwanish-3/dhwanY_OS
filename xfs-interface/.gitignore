@@ -5,13 +5,13 @@ disk.xfs
 *~
 *.o
 *.xsm
-*.txt
+# *.txt
 *.tmp
 *.dSYM
 *.vscode/
 .DS_Store
 temp*
 test
-inodetable.txt
-rootfile.txt
+# inodetable.txt
+# rootfile.txt
 tags

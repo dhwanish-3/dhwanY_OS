@@ -1,0 +1,13 @@
+int main () {
+    decl
+        int temp, s;
+    enddecl
+    begin
+        s = 333;
+        while (s == 333) do
+            // temp = exposcall("Write", -2, s);
+            s = 333;
+        endwhile;
+        return 0;
+    end
+}

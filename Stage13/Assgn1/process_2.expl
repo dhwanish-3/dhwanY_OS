@@ -17,6 +17,6 @@ int main () {
             endif;
             num = num + 1;
         endwhile;
-    return 0;
+        return 0;
     end
 }
