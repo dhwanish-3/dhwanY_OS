@@ -6,15 +6,11 @@ loadi(17, 30);
 loadi(63, 13);
 loadi(64, 14);
 
-// load module 5 (scheduler) from disk 63-64 to memory 50-51
-loadi(50,63);
-loadi(51,64);
-
 // load init code from disk 7-8 to memory 65-66
 loadi(65, 7);
 loadi(66, 8);
 
-// load even.xsm from disk 17 to memory 83
+// load even.xsm from disk 69 to memory 83
 loadi(83, 69);
 
 // loadi int 10 code from disk 35-36 to memory 22-23
@@ -116,12 +112,5 @@ PTLR = 10;
 [PROCESS_TABLE + 32 + 15] = 10;
 
 [86 * 512] = [83 * 512 + 1];
-
-alias i R0;
-i = 3;
-while (i < 16) do
-    [PROCESS_TABLE + i * 16 + 4] = TERMINATED;
-    i = i + 1;
-endwhile;
 
 return;

@@ -1,0 +1,12 @@
+int main () {
+    decl
+        int s;
+    enddecl
+    begin
+        s = 333;
+        while (s == 333) do
+            s = 333;
+        endwhile;
+        return 0;
+    end
+}
