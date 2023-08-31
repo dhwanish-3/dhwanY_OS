@@ -1,0 +1,24 @@
+int main () {
+    decl
+        int t, i, j, isPrime;
+    enddecl
+    begin
+        i = 2;
+        while (i <= 97) do
+            isPrime = 1;
+            j = 2;
+            while (j <= (i / 2)) do
+                if ((i % j) == 0) then
+                    isPrime = 0;
+                    break;
+                endif;
+                j = j + 1;
+            endwhile;
+            if (isPrime == 1) then
+                t = exposcall("Write", -2, i);
+            endif;
+            i = i + 1;
+        endwhile;
+        return 0;
+    end
+}

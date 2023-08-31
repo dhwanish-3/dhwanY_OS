@@ -4,7 +4,7 @@ int main () {
     enddecl
     begin
         n = 1;
-        while (n < 200) do
+        while (n < 100) do
             t = exposcall("Write", -2, n);
             n = n + 2;
         endwhile;

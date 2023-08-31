@@ -1,0 +1,175 @@
+// load int 7 code from disk 29-30 to memory 16-17
+loadi(16, 29);
+loadi(17, 30);
+
+// load library code from disk 13-14 to memory 63-64
+loadi(63, 13);
+loadi(64, 14);
+
+// load module 5 (scheduler) from disk 63-64 to memory 50-51
+loadi(50,63);
+loadi(51,64);
+
+// load init code from disk 7-8 to memory 65-66
+loadi(65, 7);
+loadi(66, 8);
+
+// load even.xsm from disk 17 to memory 83
+loadi(83, 69);
+
+// load prime.xsm from disk 17 to memory 83
+loadi(88, 70);
+
+// loadi int 10 code from disk 35-36 to memory 22-23
+loadi(22, 35);
+loadi(23, 36);
+
+// load timer interrupt code from disk 17-18 to memory 4-5
+loadi(4, 17);
+loadi(5, 18);
+
+// load ExHandling code from disk 15-16 to memory 2-3
+loadi(2, 15);
+loadi(3, 16);
+
+// For INIT
+PTBR = PAGE_TABLE_BASE + 20;
+PTLR = 10;
+
+// Initialize the page table for INIT program
+// library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+// Heap
+[PTBR + 4] = 78;
+[PTBR + 5] = "0110";
+[PTBR + 6] = 79;
+[PTBR + 7] = "0110";
+
+// code
+[PTBR + 8] = 65;
+[PTBR + 9] = "0100";
+[PTBR + 10] = 66;
+[PTBR + 11] = "0100";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+// Stack
+[PTBR + 16] = 76;
+[PTBR + 17] = "0110";
+[PTBR + 18] = 77;
+[PTBR + 19] = "0110";
+
+// setting up process table for INIT
+[PROCESS_TABLE + 16 + 1] = 1;
+[PROCESS_TABLE + 16 + 4] = CREATED;
+[PROCESS_TABLE + 16 + 11] = 80;
+[PROCESS_TABLE + 16 + 13] = 8 * 512;
+[PROCESS_TABLE + 16 + 12] = 0;
+[PROCESS_TABLE + 16 + 14] = PAGE_TABLE_BASE + 20;
+[PROCESS_TABLE + 16 + 15] = 10;
+
+[76 * 512] = [65 * 512 + 1];
+
+// For even.xsm
+PTBR = PAGE_TABLE_BASE + 40;
+PTLR = 10;
+
+// Initialize the page table for even.xsm program
+// library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+// Heap
+[PTBR + 4] = 84;
+[PTBR + 5] = "0110";
+[PTBR + 6] = 85;
+[PTBR + 7] = "0110";
+
+// code
+[PTBR + 8] = 83;
+[PTBR + 9] = "0100";
+[PTBR + 10] = -1;
+[PTBR + 11] = "0000";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+// Stack
+[PTBR + 16] = 86;
+[PTBR + 17] = "0110";
+[PTBR + 18] = -1;
+[PTBR + 19] = "0000";
+
+// setting up process table for even.xsm
+[PROCESS_TABLE + 32 + 1] = 2;
+[PROCESS_TABLE + 32 + 4] = CREATED;
+[PROCESS_TABLE + 32 + 11] = 87;
+[PROCESS_TABLE + 32 + 13] = 8 * 512;
+[PROCESS_TABLE + 32 + 12] = 0;
+[PROCESS_TABLE + 32 + 14] = PAGE_TABLE_BASE + 40;
+[PROCESS_TABLE + 32 + 15] = 10;
+
+[86 * 512] = [83 * 512 + 1];   
+
+
+// For prime.xsm
+PTBR = PAGE_TABLE_BASE + 60;
+PTLR = 10;
+
+// Initialize the page table for prime.xsm program
+// library
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+// Heap
+[PTBR + 4] = -1;
+[PTBR + 5] = "0000";
+[PTBR + 6] = -1;
+[PTBR + 7] = "0000";
+
+// code
+[PTBR + 8] = 88;
+[PTBR + 9] = "0100";
+[PTBR + 10] = -1;
+[PTBR + 11] = "0000";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+// Stack
+[PTBR + 16] = 89;
+[PTBR + 17] = "0110";
+[PTBR + 18] = -1;
+[PTBR + 19] = "0000";
+
+// setting up process table for prime.xsm
+[PROCESS_TABLE + 48 + 1] = 3;
+[PROCESS_TABLE + 48 + 4] = CREATED;
+[PROCESS_TABLE + 48 + 11] = 90;
+[PROCESS_TABLE + 48 + 13] = 8 * 512;
+[PROCESS_TABLE + 48 + 12] = 0;
+[PROCESS_TABLE + 48 + 14] = PAGE_TABLE_BASE + 60;
+[PROCESS_TABLE + 48 + 15] = 10;
+
+[89 * 512] = [88 * 512 + 1];               
+
+alias i R0;
+i = 4;
+while (i < 16) do
+    [PROCESS_TABLE + i * 16 + 4] = TERMINATED;
+    i = i + 1;
+endwhile;
+
+return;

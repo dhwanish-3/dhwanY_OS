@@ -5,8 +5,6 @@
 SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
 backup;
 
-print "timer";
-
 // obtaining PID of the currently executing process
 alias currentPID R0;
 currentPID = [SYSTEM_STATUS_TABLE + 1];

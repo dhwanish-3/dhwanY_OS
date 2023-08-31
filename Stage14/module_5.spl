@@ -15,19 +15,17 @@ alias state R3;
 alias newPID R4;
 
 newPID = 0;
-i = 1;
+i = currentPID + 1;
 while (i < 16) do
-    state = [process_table_entry + i * 16 + 4];
+    state = [PROCESS_TABLE + i * 16 + 4];
     if (state == READY || state == CREATED) then
-        newPID = [process_table_entry + i * 16 + 1];
-        print "newPID = ";
-        print newPID;
+        newPID = i;
         break;
     endif;
     i = i + 1;
 endwhile;
 
-process_table_entry = PROCESS_TABLE + newPID * 16;
+process_table_entry = PROCESS_TABLE + (newPID * 16);
 SP = [process_table_entry + 11] * 512 + [process_table_entry + 12];
 PTBR = [process_table_entry + 14];
 PTLR = [process_table_entry + 15];
