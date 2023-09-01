@@ -1,0 +1,26 @@
+alias functionNum R1;
+alias currentPID R2;
+alias word R3;
+
+if (functionNum != 3) then
+    return;
+else
+    multipush(R1, R2, R3);
+    functionNum = 8;
+
+    call MOD_0;
+
+    multipop(R1, R2, R3);
+
+    print word;
+
+    multipush(R1, R2, R3);
+
+    functionNum = 9;
+
+    call MOD_0;
+
+    multipop(R1, R2, R3);
+
+    return;
+endif;

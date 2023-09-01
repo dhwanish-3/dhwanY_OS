@@ -1,0 +1,42 @@
+alias functionNum R1;
+alias currentPID R2;
+
+if (functionNum == 8) then // Acquire Terminal
+    while ([TERMINAL_STATUS_TABLE] != 0) do
+        [PROCESS_TABLE + currentPID * 16 + 4] = WAIT_TERMINAL;
+        multipush(R1, R2);
+
+        call MOD_5;
+
+        multipop(R1, R2);
+    endwhile;
+
+    [TERMINAL_STATUS_TABLE] = 1;
+    [TERMINAL_STATUS_TABLE + 1] = currentPID;
+    return;
+else
+if (functionNum == 9) then // Release Terminal
+    if (currentPID != [TERMINAL_STATUS_TABLE + 1]) then
+        alias returnValue R0;
+        returnValue = -1;
+        return; 
+    else
+        [TERMINAL_STATUS_TABLE] = 0;
+        alias i R3;
+        i = 0;
+        while (i < 16) do
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_TERMINAL) then
+                [PROCESS_TABLE + 16 * i + 4] = READY;
+            endif;
+            i = i + 1;
+        endwhile;
+        alias returnValue R0;
+        returnValue = 0;
+        return;
+    endif;
+else
+    alias returnValue R0;
+    returnValue = -1;
+    return;
+endif;
+endif;

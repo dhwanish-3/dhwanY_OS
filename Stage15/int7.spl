@@ -1,0 +1,55 @@
+// Set mode flag to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
+
+alias userSP R0;
+userSP = SP;
+
+// store user stack pointer in UPTR
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+// Set SP to start of kernel stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias physicalPageNumber R1;
+alias offset R2;
+alias physicalAddress R3;
+
+physicalPageNumber = [PTBR + 2 * ((userSP - 4) / 512)];
+offset = (userSP - 4) % 512;
+physicalAddress = physicalPageNumber * 512 + offset;
+
+alias fileDescriptor R4;
+fileDescriptor = [physicalAddress];
+if (fileDescriptor != -2) then
+    physicalPageNumber = [PTBR + 2 * ((userSP - 1) / 512)];
+    offset = (userSP - 1) % 512;
+    [physicalPageNumber * 512 + offset] = -1;
+else 
+    physicalPageNumber = [PTBR + 2 * ((userSP - 3) / 512)];
+    offset = (userSP - 3) % 512;
+    alias word R5;
+    word = [physicalPageNumber * 512 + offset];
+
+    multipush(R0, R1, R2, R3, R4, R5);
+
+    alias arg1 R1;
+    alias arg2 R2;
+    alias arg3 R3;
+
+    arg1 = 3;
+    arg2 = [SYSTEM_STATUS_TABLE  + 1];
+    arg3 = word;
+
+    call MOD_4;
+
+    multipop(R0, R1, R2, R3, R4, R5);
+
+    physicalPageNumber = [PTBR + 2 * ((userSP - 1) / 512)];
+    offset = (userSP - 1) % 512;
+    [physicalPageNumber * 512 + offset] = 0;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;
