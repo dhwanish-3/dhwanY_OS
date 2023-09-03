@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+foldername=$(dirname $0)/../$1;
+echo $foldername;
+
+for FILE in $foldername/*.spl; do
+    echo $(basename $FILE);
+    ./spl $FILE;
+done

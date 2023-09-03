@@ -1,0 +1,32 @@
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+backup;
+
+alias reqPID R0;
+alias process_table_entry R1;
+
+reqPID = [TERMINAL_STATUS_TABLE + 1];
+process_table_entry = PROCESS_TABLE + reqPID * 16;
+
+[process_table_entry + 8] = P0;
+
+multipush(R0, R1);
+
+alias arg1 R1;
+alias arg2 R2;
+
+arg1 = 9;
+arg2 = reqPID;
+
+call MOD_0;
+
+multipop(R0, R1);
+
+restore;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+
+ireturn;
