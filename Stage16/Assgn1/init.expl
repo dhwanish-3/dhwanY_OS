@@ -1,0 +1,55 @@
+decl
+    int bubbleSort(int n);
+    int swap(int a, int b);
+    int array[20];
+enddecl
+
+int swap(int a, int b) {
+    begin
+        array[a] = array[a] + array[b];
+        array[b] = array[a] - array[b];
+        array[a] = array[a] - array[b];
+        return 0;
+    end
+}
+
+int bubbleSort(int n) {
+    decl
+        int temp, i, j;
+    enddecl
+    begin
+        i = 0;
+        while (i < (n - 1)) do 
+            j = i + 1;
+            while (j > 0) do
+                if (array[j] < array[j - 1]) then
+                    temp = swap(j, j - 1);
+                endif;
+                j = j - 1;
+            endwhile;
+            i = i + 1;
+        endwhile;
+        return 0;
+    end
+}
+
+int main() {
+    decl
+        int temp, i, n;
+    enddecl
+    begin
+        temp = exposcall("Read", -1, n);
+        i = 0;
+        while (i < n) do
+            temp = exposcall("Read", -1, array[i]);
+            i = i + 1;
+        endwhile;
+        temp = bubbleSort(n);
+        i = 0;
+        while (i < n) do
+            temp = exposcall("Write", -2, array[i]);
+            i = i + 1;
+        endwhile;
+        return 0;
+    end
+}
