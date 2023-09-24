@@ -62,10 +62,7 @@ loadi(60, 4);
 loadi(6, 19);
 loadi(7, 20);
 
-[TERMINAL_STATUS_TABLE] = 0;
-[DISK_STATUS_TABLE] = 0;
-
-// memory free list inittialization
+// memory free list initialization
 alias i R0;
 i = 0;
 while (i < 128) do
@@ -77,18 +74,14 @@ while (i < 128) do
     i = i + 1;
 endwhile;
 
-// per-process resource table for init
-i = 1;
-while (i < 9) do
-    [([PROCESS_TABLE + 16 + 11] + 1) * 512 - 2 * i] = -1;
-    i = i + 1;
-endwhile;
-
+[MEMORY_FREE_LIST + 76] = 1;
+[MEMORY_FREE_LIST + 77] = 1;
+[MEMORY_FREE_LIST + 78] = 1;
+[MEMORY_FREE_LIST + 79] = 1;
+[MEMORY_FREE_LIST + 80] = 1;
 [MEMORY_FREE_LIST + 81] = 1;
 [MEMORY_FREE_LIST + 82] = 1;
-[SYSTEM_STATUS_TABLE + 0] = 0;
-[SYSTEM_STATUS_TABLE + 2] = 45;
-[SYSTEM_STATUS_TABLE + 3] = 0;
+
 PTBR = PAGE_TABLE_BASE + 20;
 PTLR = 10;
 
@@ -122,10 +115,23 @@ PTLR = 10;
 [PROCESS_TABLE + 16 + 4] = CREATED;
 [76 * 512] = [65 * 512 + 1];
 
+// per-process resource table for init
+i = 1;
+while (i < 9) do
+    [([PROCESS_TABLE + 16 + 11] + 1) * 512 - 2 * i] = -1;
+    i = i + 1;
+endwhile;
+
 i = 2;
 while (i < 16) do
     [PROCESS_TABLE + 16 * i + 4] = TERMINATED;
     i = i + 1;
 endwhile;
+
+[TERMINAL_STATUS_TABLE] = 0;
+[DISK_STATUS_TABLE] = 0;
+[SYSTEM_STATUS_TABLE + 0] = 0;
+[SYSTEM_STATUS_TABLE + 2] = 45;
+[SYSTEM_STATUS_TABLE + 3] = 0;
 
 return;

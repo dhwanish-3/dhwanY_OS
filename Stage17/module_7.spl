@@ -74,6 +74,11 @@ while (i < 128) do
     i = i + 1;
 endwhile;
 
+[MEMORY_FREE_LIST + 76] = 1;
+[MEMORY_FREE_LIST + 77] = 1;
+[MEMORY_FREE_LIST + 78] = 1;
+[MEMORY_FREE_LIST + 79] = 1;
+[MEMORY_FREE_LIST + 80] = 1;
 [MEMORY_FREE_LIST + 81] = 1;
 [MEMORY_FREE_LIST + 82] = 1;
 [SYSTEM_STATUS_TABLE + 0] = 0;

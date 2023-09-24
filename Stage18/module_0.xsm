@@ -24,9 +24,6 @@ MOV [29552], 1
 MOV R16, 29552
 ADD R16, 4
 MOV [R16], R2
-MOV R16, "Acquired disk"
-PORT P1, R16
-OUT
 RET
 JMP _L2
 _L1:

@@ -19,7 +19,7 @@ if (functionNum == 2) then
     [DISK_STATUS_TABLE + 3] = diskBlock;
 
     load(memoryPage, diskBlock);
-print "hari";
+    
     [PROCESS_TABLE + currentPID * 16 + 4] = WAIT_DISK;
 
     call MOD_5;
