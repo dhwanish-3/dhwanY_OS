@@ -1,0 +1,11 @@
+int main() {
+    decl
+        int temp;
+        str m;
+    enddecl
+    begin
+        m = "Idle";
+        temp = exposcall("Write", -2, m);
+        return 0;
+    end
+}
