@@ -1,0 +1,41 @@
+type
+    list {
+        int val;
+        list next;
+    }
+endtype
+
+decl
+    list head, tempNode, node;
+enddecl
+
+int main() {
+    decl
+        int temp, n, x, i;
+    enddecl
+    begin
+        temp = initialize();
+        temp = exposcall("Write", -2, "Enter n: ");
+        temp = exposcall("Read", -1, n);
+        head = alloc();
+        tempNode = head;
+        i = 0;
+        while (i < n) do
+            node = alloc();
+            temp = exposcall("Read", -1, x);
+            node.val = x;
+            tempNode.next = node;
+            tempNode = node;
+            i = i + 1;
+        endwhile;
+        temp = exposcall("Write", -2, "Linked List:");
+        head = head.next;
+        i = 0;
+        while (i < n) do
+            temp = exposcall("Write", -2, head.val);
+            head = head.next;
+            i = i + 1;
+        endwhile;
+        return 0;
+    end
+}

@@ -15,6 +15,7 @@ if (functionNumber == 1) then
 
     // decrement wait_mem_count
     [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
     
     alias memoryFreeIndex R2;
     // since available pages for user processes are from 76 to 127
@@ -27,7 +28,6 @@ if (functionNumber == 1) then
     [MEMORY_FREE_LIST + memoryFreeIndex] = 1;
     
     R0 = memoryFreeIndex;
-    breakpoint;
     return;
 endif;
 
@@ -52,7 +52,6 @@ if (functionNumber == 2) then
         endif;
         i = i + 1;
     endwhile;
-    breakpoint;
     return;
 endif;
 
@@ -109,6 +108,7 @@ if (functionNumber == 5) then
     multipop(R1, R2, R5);
 
     R0 = pageNumber;
+    breakpoint;
     return;
 endif;
     
