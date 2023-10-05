@@ -16,4 +16,7 @@ load --module 2 $HOME/myexpos/Stage19/module_2.xsm
 load --module 4 $HOME/myexpos/Stage18/module_4.xsm
 load --int=timer $HOME/myexpos/Stage14/timer.xsm
 load --library $HOME/myexpos/expl/library.lib
+rm exec.xsm
 load --exec $HOME/myexpos/Stage19/exec.xsm
+rm list.xsm
+load --exec $HOME/myexpos/Stage19/Assgn1/list.xsm
