@@ -51,25 +51,28 @@ else
     [newPTBR + 19] = "0110";
 
     multipop(R0, R1, R2, R3);
-    [PROCESS_TABLE + (newPID * 16) + 3] = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 3];
-    [PROCESS_TABLE + (newPID * 16) + 6] = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 6];
-    [PROCESS_TABLE + (newPID * 16) + 10] = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 10]; 
-    [PROCESS_TABLE + (newPID * 16) + 7] = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 7];
-    [PROCESS_TABLE + (newPID * 16) + 13] = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + newPID * 16 + 3] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 3];
+    [PROCESS_TABLE + newPID * 16 + 6] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 6];
+    [PROCESS_TABLE + newPID * 16 + 10] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 10]; 
+    [PROCESS_TABLE + newPID * 16 + 7] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 7];
+    [PROCESS_TABLE + newPID * 16 + 13] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
 
-    [PROCESS_TABLE + (newPID * 16) + 9] = 0;
-    [PROCESS_TABLE + (newPID * 16) + 12] = 0;
-    [PROCESS_TABLE + (newPID * 16) + 0] = 0;
-    [PROCESS_TABLE + (newPID * 16) + 2] = [SYSTEM_STATUS_TABLE + 1];
-    [PROCESS_TABLE + (newPID * 16) + 4] = CREATED;
+    [PROCESS_TABLE + newPID * 16 + 9] = 0;
+    [PROCESS_TABLE + newPID * 16 + 12] = 0;
+    [PROCESS_TABLE + newPID * 16 + 0] = 0;
+    [PROCESS_TABLE + newPID * 16 + 2] = [SYSTEM_STATUS_TABLE + 1];
+    [PROCESS_TABLE + newPID * 16 + 4] = CREATED;
 
     multipush(R0, R1, R2, R3);
 
     R1 = 1;
     call MEMORY_MANAGER;
-    [PROCESS_MANAGER + newPID * 16 + 11] = R0;
+    R5 = R0;
 
     multipop(R0, R1, R2, R3);
+
+    [PROCESS_MANAGER + newPID * 16 + 11] = R5;
+
     // initialization per process resourse table child
     alias i R4;
     i = 512 - 16;
@@ -81,7 +84,7 @@ else
     // disk map table for child
     i = 0;
     while (i < 10) do
-        [DISK_MAP_TABLE + 10 * newPID + i] = [DISK_MAP_TABLE + 10 * [SYSTEM_STATUS_TABLE + 1] + i];
+        [DISK_MAP_TABLE + 10 * newPID + i] = [DISK_MAP_TABLE + [SYSTEM_STATUS_TABLE + 1] * 10 + i];
         i = i + 1;
     endwhile;
 
@@ -97,13 +100,12 @@ else
     endwhile;
 
     // copy user stack contents
-    i = 0;
     alias oldStack R5;
     alias newStack R6;
 
     oldStack = [PTBR + 16];
     newStack = [newPTBR + 16];
-
+    i = 0;
     while (i < 512) do
         [newStack * 512 + i] = [oldStack * 512 + i];
         i = i + 1;
@@ -121,8 +123,8 @@ else
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
     
     // return value
-    [[PTBR + 2 * ((userSP - 1)/512)] * 512 + (userSP - 1) % 512] = newPID;
-    [[newPTBR + 2 * ((userSP - 1)/512)] * 512 + (userSP - 1) % 512] = 0;
+    [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = newPID;
+    [[newPTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512] = 0;
 
     SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
 endif;
