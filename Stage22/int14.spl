@@ -59,9 +59,9 @@ if (sysCallNumber == 20) then // semUnLock
         alias i R5;
         i = 0;
         while (i < 16) do
-            if ([PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 5] == semID) then
-                [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = READY;
-                [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 5] = -1;
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + i * 16 + 5] == semID) then
+                [PROCESS_TABLE + i * 16 + 4] = READY;
+                [PROCESS_TABLE + i * 16 + 5] = -1;
             endif;
             i = i + 1;
         endwhile;

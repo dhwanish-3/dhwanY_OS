@@ -162,6 +162,9 @@ MOD R17, 512
 ADD R16, R17
 MOV [R16], R2
 _L8:
+MOV R16, "semget"
+PORT P1, R16
+OUT
 _L6:
 JMP _L2
 _L1:
@@ -279,6 +282,9 @@ ADD R16, R17
 ADD R16, 1
 MOV [R16], -1
 _L12:
+MOV R16, "semrelease"
+PORT P1, R16
+OUT
 JMP _L10
 _L9:
 _L10:

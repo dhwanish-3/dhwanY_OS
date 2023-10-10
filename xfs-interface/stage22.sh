@@ -20,3 +20,4 @@ load --module 1 $HOME/myexpos/Stage22/mod1.xsm
 load --module 2 $HOME/myexpos/Stage19/module_2.xsm
 load --module 4 $HOME/myexpos/Stage18/module_4.xsm
 load --int=timer $HOME/myexpos/Stage14/timer.xsm
+load --exec $HOME/myexpos/Stage22/Assgn1/test4.xsm

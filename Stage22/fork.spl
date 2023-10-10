@@ -71,19 +71,21 @@ else
 
     multipop(R0, R1, R2, R3);
 
-    [PROCESS_MANAGER + newPID * 16 + 11] = R5;
+    [PROCESS_TABLE + newPID * 16 + 11] = R5;
 
     // initialization per process resourse table child
     alias i R4;
-    i = 512 - 16;
+    i = RESOURCE_TABLE_OFFSET;
+    print "start";
     while (i < 512) do
         [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i];
         [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i + 1] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i + 1];
         if ([[PROCESS_TABLE + newPID * 16 + 11] * 512 + i] == 1) then
-            [SEMAPHORE_TABLE + [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i + 1] * 4 + 1] = [SEMAPHORE_TABLE + [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i + 1] * 4 + 1] + 1;
+            [SEMAPHORE_TABLE + [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i + 1] * 4 + 1] = [SEMAPHORE_TABLE + [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i + 1] * 4 + 1] + 1;
         endif;
         i = i + 2;
     endwhile;
+    print "end";
 
     // disk map table for child
     i = 0;

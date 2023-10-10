@@ -71,7 +71,7 @@ else
 
     multipop(R0, R1, R2, R3);
 
-    [PROCESS_MANAGER + newPID * 16 + 11] = R5;
+    [PROCESS_TABLE + newPID * 16 + 11] = R5;
 
     // initialization per process resourse table child
     alias i R4;
