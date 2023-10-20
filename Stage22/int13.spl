@@ -1,0 +1,64 @@
+alias userSP R0;
+userSP = SP;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias sysCallNumber R1;
+sysCallNumber = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + ((userSP - 5) % 512)];
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = sysCallNumber;
+
+if (sysCallNumber == 17) then // semget
+    alias i R2;
+    i = 0;
+    while ([[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + i * 2] != -1 && i < 8) do
+        i = i + 2;
+    endwhile;
+
+    if (i == 8) then // no space
+        [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -1;
+    else
+        multipush(R0, R1, R2);
+        
+        R1 = 6;
+        R2 = [SYSTEM_STATUS_TABLE + 1];
+        call RESOURCE_MANAGER;
+        R5 = R0;
+        multipop(R0, R1, R2);
+
+        if (R5 == -1) then // no semaphores left
+            [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -2;
+        else
+            [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + i * 2] = 1;
+            [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + i * 2 + 1] = R5;
+            [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = i;
+        endif;
+    endif;
+endif;
+
+if (sysCallNumber == 18) then // semrelease
+    alias semId R2;
+    semId = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + ((userSP - 4) % 512)];
+
+    if (semId < 0 || semId > 7 || [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId] != 1) then
+        [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -1;
+    else
+        multipush(R0, R1, R2);
+
+        R1 = 7;
+        R2 = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId + 1];
+        R3 = [SYSTEM_STATUS_TABLE + 1];
+
+        call RESOURCE_MANAGER;
+        
+        multipop(R0, R1, R2);
+        [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId] = -1;
+        [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId + 1] = -1;
+    endif;
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+
+ireturn;

@@ -1,0 +1,75 @@
+alias userSP R0;
+userSP = SP;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias sysCallNumber R1;
+sysCallNumber = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + ((userSP - 5) % 512)];
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = sysCallNumber;
+
+alias resource_base R2;
+resource_base = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET;
+
+alias semfd R3;
+semfd = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + ((userSP - 4) % 512)];
+
+if (semfd < 0 || semfd > 7 || [resource_base + 2 * semfd] != SEMAPHORE) then
+    [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -1;
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+    print "lockerror";
+    ireturn;
+endif;
+
+alias semID R4;
+semID = [resource_base + semfd * 2 + 1];
+
+if (sysCallNumber == 19) then // semLock
+    // while the semaphore is locked by other processes
+    while ([SEMAPHORE_TABLE + semID * 4] != -1 && [SEMAPHORE_TABLE + semID * 4] != [SYSTEM_STATUS_TABLE + 1]) do
+        [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = WAIT_SEMAPHORE;
+        [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 5] = semID;
+        multipush(R0, R1, R2, R3, R4);
+
+        call SCHEDULER;
+
+        multipop(R0, R1, R2, R3, R4);
+    endwhile;
+
+    [SEMAPHORE_TABLE + 4 * semID] = [SYSTEM_STATUS_TABLE + 1];
+endif;
+
+if (sysCallNumber == 20) then // semUnLock
+    // if semaphore is locked
+    if ([SEMAPHORE_TABLE + semID * 4] != -1) then
+        // if semaphore is not locked by current process
+        if ([SEMAPHORE_TABLE + semID * 4] != [SYSTEM_STATUS_TABLE + 1]) then
+            [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = -2;
+            [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+            SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+            ireturn;
+        endif;
+
+        // unlock the semaphore
+        [SEMAPHORE_TABLE + 4 * semID] = -1;
+
+        // wake all waiting for this semaphore
+        alias i R5;
+        i = 0;
+        while (i < 16) do
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + i * 16 + 5] == semID) then
+                [PROCESS_TABLE + i * 16 + 4] = READY;
+                [PROCESS_TABLE + i * 16 + 5] = -1;
+            endif;
+            i = i + 1;
+        endwhile;
+    endif;
+endif;
+
+[[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = 0;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+
+ireturn;
