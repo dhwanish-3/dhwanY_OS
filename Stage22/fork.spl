@@ -40,17 +40,21 @@ else
     newPTBR = PAGE_TABLE_BASE + 20 * newPID;
 
     multipush(R0, R1, R2, R3);
-
     R1 = 1;
     call MEMORY_MANAGER;
-    [newPTBR + 16] = R0;
+    R5 = R0;
+    multipop(R0, R1, R2, R3);
+    [newPTBR + 16] = R5;
     [newPTBR + 17] = "0110";
+
+    multipush(R0, R1, R2, R3);
     R1 = 1;
     call MEMORY_MANAGER;
-    [newPTBR + 18] = R0;
+    R5 = R0;
+    multipop(R0, R1, R2, R3);
+    [newPTBR + 18] = R5;
     [newPTBR + 19] = "0110";
 
-    multipop(R0, R1, R2, R3);
     [PROCESS_TABLE + newPID * 16 + 3] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 3];
     [PROCESS_TABLE + newPID * 16 + 6] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 6];
     [PROCESS_TABLE + newPID * 16 + 10] = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 10]; 
@@ -76,7 +80,6 @@ else
     // initialization per process resourse table child
     alias i R4;
     i = RESOURCE_TABLE_OFFSET;
-    print "start";
     while (i < 512) do
         [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i];
         [[PROCESS_TABLE + newPID * 16 + 11] * 512 + i + 1] = [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + i + 1];
@@ -85,7 +88,6 @@ else
         endif;
         i = i + 2;
     endwhile;
-    print "end";
 
     // disk map table for child
     i = 0;
@@ -108,21 +110,17 @@ else
     // copy user stack contents
     alias oldStack R5;
     alias newStack R6;
-
-    oldStack = [PTBR + 16];
-    newStack = [newPTBR + 16];
-    i = 0;
-    while (i < 512) do
-        [newStack * 512 + i] = [oldStack * 512 + i];
-        i = i + 1;
-    endwhile;
-
-    oldStack = [PTBR + 18];
-    newStack = [newPTBR + 18];
-    i = 0;
-    while (i < 512) do
-        [newStack * 512 + i] = [oldStack * 512 + i];
-        i = i + 1;
+    alias temp R7;
+    temp = 16;
+    while (temp < 20) do
+        oldStack = [PTBR + temp];
+        newStack = [newPTBR + temp];
+        i = 0;
+        while (i < 512) do
+            [newStack * 512 + i] = [oldStack * 512 + i];
+            i = i + 1;
+        endwhile;
+        temp = temp + 2;
     endwhile;
 
     [[PROCESS_TABLE + newPID * 16 + 11] * 512] = BP;

@@ -20,4 +20,13 @@ load --module 1 $HOME/myexpos/Stage22/mod1.xsm
 load --module 2 $HOME/myexpos/Stage19/module_2.xsm
 load --module 4 $HOME/myexpos/Stage18/module_4.xsm
 load --int=timer $HOME/myexpos/Stage14/timer.xsm
+rm test4.xsm
 load --exec $HOME/myexpos/Stage22/Assgn1/test4.xsm
+rm parent.xsm
+load --exec $HOME/myexpos/Stage22/Assgn2/parent.xsm
+rm child.xsm
+load --exec $HOME/myexpos/Stage22/Assgn2/child.xsm
+rm con.xsm
+load --exec $HOME/myexpos/Stage22/Assgn3/con.xsm
+rm seq.xsm
+load --exec $HOME/myexpos/Stage22/Assgn3/seq.xsm

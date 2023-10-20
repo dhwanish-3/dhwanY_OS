@@ -34,7 +34,6 @@ if (sysCallNumber == 17) then // semget
             [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + i * 2 + 1] = R5;
             [[PTBR + 2 * ((userSP - 1) / 512)] * 512 + ((userSP - 1) % 512)] = i;
         endif;
-        print "semget";
     endif;
 endif;
 
@@ -57,7 +56,6 @@ if (sysCallNumber == 18) then // semrelease
         [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId] = -1;
         [[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + 2 * semId + 1] = -1;
     endif;
-    print "semrelease";
 endif;
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
