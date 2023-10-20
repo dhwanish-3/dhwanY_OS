@@ -1,0 +1,96 @@
+alias functionNum R1;
+alias currentPID R2;
+
+// Acquire Disk
+if (functionNum == 3) then
+    while ([DISK_STATUS_TABLE] == 1) do
+        [PROCESS_TABLE + currentPID * 16 + 4] = WAIT_DISK;
+        multipush(R1, R2);
+        call MOD_5;
+        multipop(R1, R2);
+    endwhile;
+    [DISK_STATUS_TABLE] = 1;
+    [DISK_STATUS_TABLE + 4] = currentPID;
+    return;
+endif;
+
+if (functionNum == 6) then // acquire semaphore
+    alias i R3;
+    i = 0;
+    while(i < MAX_SEM_COUNT && [SEMAPHORE_TABLE + 4 * i + 1] != 0) do
+        i = i + 1;
+    endwhile;
+
+    if (i == MAX_SEM_COUNT) then
+        R0 = -1;
+    else
+        [SEMAPHORE_TABLE + 4 * i] = -1;
+        [SEMAPHORE_TABLE + 4 * i + 1] = 1;
+        R0 = i;
+    endif;
+    return;
+endif;
+
+if (functionNum == 7) then // Release semaphore
+    alias semId R2;
+    alias currentPID R3;
+
+    if (currentPID == [SEMAPHORE_TABLE + semId * 4]) then
+        [SEMAPHORE_TABLE + semId * 4] = -1;
+        alias i R4;
+
+        i = 0;
+        while (i < 16) do
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_SEMAPHORE && [PROCESS_TABLE + i * 16 + 5] == semId) then
+                [PROCESS_TABLE + i * 16 + 4] = READY;
+                [PROCESS_TABLE + i * 16 + 5] = -1;
+            endif;
+            i = i + 1;
+        endwhile;
+
+        [SEMAPHORE_TABLE + 4 * semId + 1] = [SEMAPHORE_TABLE + 4 * semId + 1] - 1;
+    endif;
+    return;
+endif;
+
+// Acquire Terminal
+if (functionNum == 8) then
+    while ([TERMINAL_STATUS_TABLE] != 0) do
+        [PROCESS_TABLE + currentPID * 16 + 4] = WAIT_TERMINAL;
+        multipush(R1, R2);
+
+        call MOD_5;
+
+        multipop(R1, R2);
+    endwhile;
+
+    [TERMINAL_STATUS_TABLE] = 1;
+    [TERMINAL_STATUS_TABLE + 1] = currentPID;
+    return;
+endif;
+
+// Release Terminal
+if (functionNum == 9) then
+    if (currentPID != [TERMINAL_STATUS_TABLE + 1]) then
+        alias returnValue R0;
+        returnValue = -1;
+        return; 
+    else
+        [TERMINAL_STATUS_TABLE] = 0;
+        alias i R3;
+        i = 0;
+        while (i < 16) do
+            if ([PROCESS_TABLE + i * 16 + 4] == WAIT_TERMINAL) then
+                [PROCESS_TABLE + 16 * i + 4] = READY;
+            endif;
+            i = i + 1;
+        endwhile;
+        alias returnValue R0;
+        returnValue = 0;
+        return;
+    endif;
+else
+    alias returnValue R0;
+    returnValue = -1;
+    return;
+endif;
