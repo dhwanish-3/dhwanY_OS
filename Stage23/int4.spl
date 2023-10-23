@@ -1,0 +1,159 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+alias userSP R0;
+userSP = SP;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias sysCallNo R1;
+
+sysCallNo = [[PTBR + 2 * (userSP - 5) / 512] * 512 + (userSP - 5) % 512];
+
+alias returnAddress R10;
+
+returnAddress = [PTBR + 2 * (userSP - 1) / 512] * 512 + (userSP - 1) % 512;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = sysCallNo;
+
+alias fileName R2;
+fileName = [[PTBR + 2 * (userSP - 4) / 512] * 512 + (userSP - 4) % 512];
+
+alias i R3;
+i = 0;
+alias fileFound R4;
+fileFound = 0;
+while (i < MAX_FILE_NUM) do
+    if ([INODE_TABLE + i * 16 + 1] == fileName) then
+        fileFound = 1;
+        break;
+    endif;
+    i = i + 1;
+endwhile;
+
+if (sysCallNo == 1) then // create
+    if (fileFound == 1) then
+        [returnAddress] = 0;
+        SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+        [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+        ireturn;
+    endif;
+    alias permission R5;
+    permission = [[PTBR + 2 * (userSP - 3) / 512] * 512 + (userSP - 3) % 512];
+
+    i = 0;
+    while (i < MAX_FILE_NUM) do
+        if ([INODE_TABLE + i * 16 + 1] == -1) then
+            break;
+        endif;
+        i = i + 1;
+    endwhile;
+
+    if (i == MAX_FILE_NUM) then
+        [returnAddress] = -1;
+    else
+        alias inodeEntry R11;
+        inodeEntry = INODE_TABLE + i * 16;
+        alias userID R8;
+        userID = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 3];
+        
+        [inodeEntry + 0] = DATA;
+        [inodeEntry + 1] = fileName;
+        [inodeEntry + 2] = 0; // file size
+        [inodeEntry + 3] = userID;
+        [inodeEntry + 4] = permission;
+
+        [ROOT_FILE + i * 8 + 0] = fileName;
+        [ROOT_FILE + i * 8 + 1] = 9;
+        [ROOT_FILE + i * 8 + 2] = DATA;
+        [ROOT_FILE + i * 8 + 3] = [USER_TABLE + userID * 2];
+        [ROOT_FILE + i * 8 + 4] = permission;
+
+        [PROCESS_TABLE + i * 16 + 9] = 0;
+        [returnAddress] = 0;
+    endif;
+endif;
+
+if (sysCallNo == 4) then // Delete
+    if (fileFound == 0) then
+        [returnAddress] = 0;
+        SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+        [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+        ireturn;
+    endif;
+    alias inodeEntry R11;
+    inodeEntry = INODE_TABLE + i * 16;
+    if ([inodeEntry + 0] != DATA) then 
+        [returnAddress] = -1;
+    else
+        if ([inodeEntry + 4] == EXCLUSIVE && [SYSTEM_STATUS_TABLE + 1] != 1 && [inodeEntry + 3] != [PROCESS_TABLE + i * 16 + 3]) then
+            [returnAddress] = -1;
+        else
+            multipush(R0, R1, R2, R3, R4, R11);
+            R1 = 4;
+            R2 = i;
+            R3 = [SYSTEM_STATUS_TABLE + 1];
+            call RESOURCE_MANAGER;
+            multipop(R0, R1, R2, R3, R4, R11);
+
+            if ([FILE_STATUS_TABLE + i * 4 + 1] != -1) then // file is open
+                multipush(R0, R1, R2, R3, R4, R11);
+                R1 = 5;
+                R2 = i;
+                R3 = [SYSTEM_STATUS_TABLE + 1];
+                call RESOURCE_MANAGER;
+                multipop(R0, R1, R2, R3, R4, R11);
+                [returnAddress] = -1;
+            else
+                alias blockNum R5;
+                blockNum = inodeEntry + 8;
+                alias limit R6;
+                limit = blockNum + 4;
+                while (blockNum < limit) do
+                    if ([blockNum] == -1) then
+                        break;
+                    endif;
+                    alias bufferIndex R7;
+                    bufferIndex = [blockNum] % MAX_BUFFER;
+                    if ([BUFFER_TABLE + bufferIndex * 4 + 0] == [blockNum] && [BUFFER_TABLE + bufferIndex * 4 + 1] == 1) then
+                        [BUFFER_TABLE + bufferIndex * 4 + 1] = 0;
+                    endif;
+
+                    multipush(R0, R1, R2, R3, R4, R5, R6, R7, R11);
+                    R1 = 4;
+                    R2 = [blockNum];
+                    R3 = [SYSTEM_STATUS_TABLE + 1];
+                    call MEMORY_MANAGER;
+                    multipop(R0, R1, R2, R3, R4, R5, R6, R7, R11);
+                    blockNum = blockNum + 1;
+                endwhile;
+
+                alias inodePages R8;
+                inodePages = inodeEntry;
+                limit = inodePages + 16;
+                while (inodePages < limit) do
+                    [inodePages] = -1;
+                    inodePages = inodePages + 1;
+                endwhile;
+
+                alias rootFile R8;
+                rootFile = ROOT_FILE + 8 * i;
+                limit = rootFile + 8;
+                while (rootFile < limit) do
+                    [rootFile] = -1;
+                    rootFile = rootFile + 1;
+                endwhile;
+
+                multipush(R10);
+                R1 = 5;
+                R2 = i;
+                R3 = [SYSTEM_STATUS_TABLE + 1];
+                call RESOURCE_MANAGER;
+                multipop(R10);
+                [returnAddress] = 0;
+            endif;
+        endif;
+    endif;
+endif;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+ireturn;
