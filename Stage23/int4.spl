@@ -63,7 +63,7 @@ if (sysCallNo == 1) then // create
         [inodeEntry + 4] = permission;
 
         [ROOT_FILE + i * 8 + 0] = fileName;
-        [ROOT_FILE + i * 8 + 1] = 9;
+        [ROOT_FILE + i * 8 + 1] = 0;
         [ROOT_FILE + i * 8 + 2] = DATA;
         [ROOT_FILE + i * 8 + 3] = [USER_TABLE + userID * 2];
         [ROOT_FILE + i * 8 + 4] = permission;
@@ -85,7 +85,7 @@ if (sysCallNo == 4) then // Delete
     if ([inodeEntry + 0] != DATA) then 
         [returnAddress] = -1;
     else
-        if ([inodeEntry + 4] == EXCLUSIVE && [SYSTEM_STATUS_TABLE + 1] != 1 && [inodeEntry + 3] != [PROCESS_TABLE + i * 16 + 3]) then
+        if ([inodeEntry + 4] == EXCLUSIVE && [SYSTEM_STATUS_TABLE + 0] != 1 && [inodeEntry + 3] != [PROCESS_TABLE + i * 16 + 3]) then
             [returnAddress] = -1;
         else
             multipush(R0, R1, R2, R3, R4, R11);
@@ -102,7 +102,7 @@ if (sysCallNo == 4) then // Delete
                 R3 = [SYSTEM_STATUS_TABLE + 1];
                 call RESOURCE_MANAGER;
                 multipop(R0, R1, R2, R3, R4, R11);
-                [returnAddress] = -1;
+                [returnAddress] = -2;
             else
                 alias blockNum R5;
                 blockNum = inodeEntry + 8;

@@ -29,5 +29,12 @@ else
     R4 = 5;
     call DEVICE_MANAGER;
 
+    // disk free list
+    R1 = 1;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R3 = 61;
+    R4 = 2;
+    call DEVICE_MANAGER;
+    
     halt;
 endif;
