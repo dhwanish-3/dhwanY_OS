@@ -150,8 +150,8 @@ if (functionNumber == 5) then // kill All
         if ([INODE_TABLE + 16 * i + 1] != -1) then
             multipush(R1, R2, R3);
             R1 = 4;
-            R3 = currentPID;
             R2 = i;
+            R3 = currentPID;
             call RESOURCE_MANAGER;
             multipop(R1, R2, R3);
         endif;
@@ -175,8 +175,8 @@ if (functionNumber == 5) then // kill All
         if ([INODE_TABLE + 16 * i + 1] != -1) then
             multipush(R1, R2, R3);
             R1 = 5;
-            R3 = currentPID;
             R2 = i;
+            R3 = currentPID;
             call RESOURCE_MANAGER;
             multipop(R1, R2, R3);
         endif;

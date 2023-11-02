@@ -22,6 +22,7 @@ word = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
 alias process_table R4;
 process_table = PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1];
 
+// write system call = 5
 if (fileDescriptor == -2) then
     multipush(R0, R1, R2, R3);
 
@@ -110,14 +111,14 @@ else
 
     alias blockNumber R9;
     alias offset R10;
-    blockNumber = R0;
+    blockNumber = [INODE_TABLE + 16 * inodeIndex + 8 + lSeek / 512];
     offset = lSeek % 512;
 
     multipush(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10);
 	R1 = 1;
 	R2 = blockNumber;
-	R3 = offset;
 	R4 = word;
+	R3 = offset;
 	call FILE_MANAGER;
 	multipop(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10);
 
@@ -139,7 +140,7 @@ else
 endif;
 
 exit:
-    SP = userSP;
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 
 ireturn;

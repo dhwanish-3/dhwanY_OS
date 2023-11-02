@@ -27,14 +27,18 @@ begin
   // If success, create second file
   if(fileDesc1 >= 0) then
     temp = exposcall("Create", fileName2, 1);
+    temp = exposcall("Write", -2, "Creation success");
     fileDesc2 = exposcall("Open", fileName2);
-    while(1==1) do
+    temp = exposcall("Write", -2, "Open success");
+    while(3 == 3) do
       temp = exposcall("Read", fileDesc1, word);
       if(temp == -2) then
+        temp = exposcall("Write", -2, "EOF");
         break;
       endif;
+      temp = exposcall("Write", -2, word);
       temp = exposcall("Write", fileDesc2, word);
-    endwhile; 
+    endwhile;
   endif;
  
   temp = exposcall("Close", fileDesc1);

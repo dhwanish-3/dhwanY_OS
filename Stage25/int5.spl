@@ -87,9 +87,10 @@ if (sysCallNumber == 6) then // seek
     R3 = [SYSTEM_STATUS_TABLE + 1];
     R2 = inodeIndex;
     call RESOURCE_MANAGER;
+    R9 = R0;
     multipop(R0, R1, R2, R3, R4, R5, R6);
 
-    if (R0 == -1) then
+    if (R9 == -1) then
         [returnAddress] = -1;
         goto exit;
     endif;
