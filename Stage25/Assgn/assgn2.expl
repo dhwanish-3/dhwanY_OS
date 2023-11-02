@@ -4,11 +4,7 @@ int main(){
         str word, fileName;
     enddecl
     begin
-        temp = exposcall("Write", -2, "Enter file name");
-        temp = exposcall("Read", -1, fileName);
-        temp = exposcall("Write", -2, "Enter permission");
-        temp = exposcall("Read", -1, permission);
-        temp = exposcall("Create", fileName, permission);
+        fileName = "as1.dat";
         fileDesc = exposcall("Open", fileName);
         if(fileDesc == -1) then
             temp = exposcall("Write", -2, "File not found");
@@ -23,12 +19,12 @@ int main(){
         endif;
 
         if(fileDesc >= 0) then
-            i = 1;
-            while(i <= 1100) do
+            temp = exposcall("Seek", fileDesc, 1100);
+            i = 2000;
+            while (i <= 2513) do
                 temp = exposcall("Write", fileDesc, i);
                 i = i + 1;
             endwhile;
-
             while(a != -2) do
                 a = exposcall("Seek", fileDesc, -1);
                 if(a == -2) then

@@ -33,3 +33,5 @@ rm cp.xsm
 load --exec $HOME/myexpos/Stage25/expl/cp.xsm
 rm assgn1.xsm
 load --exec $HOME/myexpos/Stage25/Assgn/assgn1.xsm
+rm assgn2.xsm
+load --exec $HOME/myexpos/Stage25/Assgn/assgn2.xsm

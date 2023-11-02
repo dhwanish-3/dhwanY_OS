@@ -105,7 +105,7 @@ if (sysCallNumber == 6) then // seek
     alias lSeek R8;
     lSeek = [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2];
     alias offset R9;
-    offset = [[PTBR + 2 * ((userSP - 3)) / 512] * 512 + (userSP - 3) % 512];
+    offset = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + (userSP - 3) % 512];
     if (lSeek + offset < 0) then
         multipush(R1, R2, R3);
         R1 = 5;
