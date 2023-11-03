@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd ../spl
+
+for file in `find ../$1 -type f -name "*.spl"`
+do
+    ./spl $file
+    echo $file compiled
+done
+
+cd ../expl
+for file in `find ../$1 -type f -name "*.expl"`
+do
+    ./expl $file
+    echo $file compiled
+done
+
+
+cd ../xfs-interface
+pwd
+./xfs-interface
+run stage25.sh

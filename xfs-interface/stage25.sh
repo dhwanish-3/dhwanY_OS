@@ -35,3 +35,7 @@ rm assgn1.xsm
 load --exec $HOME/myexpos/Stage25/Assgn/assgn1.xsm
 rm assgn2.xsm
 load --exec $HOME/myexpos/Stage25/Assgn/assgn2.xsm
+rm test6.xsm
+load --exec $HOME/myexpos/Stage25/Assgn/test6.xsm
+rm test15.xsm
+load --exec $HOME/myexpos/Stage25/Assgn/test15.xsm

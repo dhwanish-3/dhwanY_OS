@@ -45,7 +45,6 @@ if (functionNumber == 2) then
 
     alias i R3;
     i = 1;
-
     while (i < 16) do
         if ([PROCESS_TABLE + 16 * i + 4] == WAIT_MEM) then
             [PROCESS_TABLE + 16 * i + 4] = READY;
