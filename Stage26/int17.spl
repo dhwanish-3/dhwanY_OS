@@ -1,0 +1,58 @@
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 27;
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+alias userSP R0;
+userSP = SP;
+
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+alias username R1;
+alias password R2;
+alias returnAddress R3;
+
+username = [[PTBR + 2 * (userSP - 4) / 512] * 512 + (userSP - 4) % 512];
+password = [[PTBR + 2 * (userSP - 3) / 512] * 512 + (userSP - 3) % 512];
+returnAddress = [PTBR + 2 * (userSP - 1) / 512] * 512 + (userSP - 1) % 512;
+
+if ([SYSTEM_STATUS_TABLE + 1] != 1) then
+    [returnAddress] = -1;
+else
+    alias i R4;
+    i = 0;
+    while (i < MAX_USER_NUM) do
+        if ([USER_TABLE + i * 2 + 0] == username) then 
+            break;
+        endif;
+        i = i + 1;
+    endwhile;
+
+    if (i == MAX_USER_NUM) then
+        [returnAddress] = -1;
+    else
+        alias encryptedPassword R5;
+        encryptedPassword = password;
+        encrypt encryptedPassword;
+        if (encryptedPassword != [USER_TABLE + i * 2 + 1]) then 
+            [returnAddress] = -1;
+        else
+            [PROCESS_TABLE + 32 + 3] = i; //userid
+            [PROCESS_TABLE + 32 + 4] = CREATED; //process state
+
+            [PROCESS_TABLE + 16 + 4] = WAIT_PROCESS;
+            [PROCESS_TABLE + 16 + 5] = 2; //waiting for SHELL to finish
+
+            [SYSTEM_STATUS_TABLE + 0] = i;
+
+            multipush(R0, R1, R2, R3, R4, R5);
+            call SCHEDULER;
+            multipop(R0, R1, R2, R3, R4, R5);
+
+            [returnAddress] = 0;
+
+        endif;
+    endif;
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]) * 16 + 9] = 0;
+
+ireturn;
