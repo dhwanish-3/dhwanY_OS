@@ -1,0 +1,145 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+alias userSP R0;
+userSP = SP;
+
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias sysCallNumber R1;
+sysCallNumber = [[PTBR + 2 * ((userSP - 5) / 512)] * 512 + (userSP - 5) % 512];
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = sysCallNumber;
+
+alias returnAddress R2;
+returnAddress = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
+
+if (sysCallNumber == 2) then // open system call
+    alias i R3;
+    i = 0;
+    alias resourceTable R4;
+    resourceTable = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET;
+    while (i < 8) do
+        if ([resourceTable + i * 2 + 0] == -1) then
+            break;
+        endif;
+        i = i + 1;
+    endwhile;
+
+    if (i == 16) then
+        [returnAddress] = -3;
+    else
+        alias fileName R5;
+        fileName = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+        alias fileTableEntry R6;
+
+        // open function call
+        multipush(R1, R2, R3, R4, R5);
+        R1 = 3;
+        R2 = fileName;
+        call FILE_MANAGER;
+        fileTableEntry = R0;
+        multipop(R1, R2, R3, R4, R5);
+
+        if (fileTableEntry < 0) then
+            [returnAddress] = fileTableEntry;
+        else
+            [resourceTable + i * 2 + 0] = FILE;
+            [resourceTable + i * 2 + 1] = fileTableEntry;
+            [returnAddress] = i;
+        endif;
+    endif;
+endif;
+
+alias fileDescriptor R3;
+alias resourceTableEntry R4;
+alias openFileTableEntry R5;
+if (sysCallNumber == 3 || sysCallNumber == 6) then
+    fileDescriptor = [[PTBR + 2 * ((userSP - 4)) / 512] * 512 + (userSP - 4) % 512];
+    if (fileDescriptor < 0 || fileDescriptor > 7) then
+        [returnAddress] = -1;
+    else
+        resourceTableEntry = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 + RESOURCE_TABLE_OFFSET + fileDescriptor * 2;
+        if ([resourceTableEntry] != FILE) then
+            [returnAddress] = -1;
+            goto exit;
+        endif;
+    endif;
+    openFileTableEntry = [resourceTableEntry + 1];
+endif;
+
+if (sysCallNumber == 3) then // close system call
+    multipush(R1, R2, R3, R4, R5);
+    R1 = 4;
+    R2 = openFileTableEntry;
+    call FILE_MANAGER;
+    multipop(R1, R2, R3, R4, R5);
+
+    [resourceTableEntry + 0] = -1;
+    [returnAddress] = 0;
+endif;
+
+if (sysCallNumber == 6) then // seek
+    alias inodeIndex R6;
+    inodeIndex = [OPEN_FILE_TABLE + 4 * openFileTableEntry];
+
+    multipush(R0, R1, R2, R3, R4, R5, R6);
+    R1 = 4;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = inodeIndex;
+    call RESOURCE_MANAGER;
+    R9 = R0;
+    multipop(R0, R1, R2, R3, R4, R5, R6);
+
+    if (R9 == -1) then
+        [returnAddress] = -1;
+        goto exit;
+    endif;
+
+    alias fileSize R7;
+    if (inodeIndex == INODE_ROOT) then
+        fileSize = 480;
+    else
+        fileSize = [INODE_TABLE + inodeIndex * 16 + 2];
+    endif;
+
+    alias lSeek R8;
+    lSeek = [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2];
+    alias offset R9;
+    offset = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + (userSP - 3) % 512];
+    if (lSeek + offset < 0) then
+        multipush(R1, R2, R3);
+        R1 = 5;
+        R3 = [SYSTEM_STATUS_TABLE + 1];
+        R2 = inodeIndex;
+        call RESOURCE_MANAGER;
+        multipop(R1, R2, R3);
+
+        [returnAddress] = -2;
+        goto exit;
+    endif;
+
+    if (offset == 0) then
+        [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2] = 0;
+    else
+        if (lSeek + offset > fileSize) then
+            [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2] = fileSize;
+        else
+            [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2] = lSeek + offset;
+        endif;
+    endif;
+
+    multipush(R1, R2, R3);
+    R1 = 5;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = inodeIndex; 
+    call RESOURCE_MANAGER;
+    multipop(R1, R2, R3);
+
+    [returnAddress] = 0;
+endif;
+
+exit:
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;
