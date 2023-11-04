@@ -1,0 +1,146 @@
+// Set mode flag to system call number
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
+
+alias userSP R0;
+userSP = SP;
+
+// store user stack pointer in UPTR
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+// Set SP to start of kernel stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+alias returnAddress R1;
+returnAddress = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
+
+alias fileDescriptor R2;
+fileDescriptor = [[PTBR + 2 * ((userSP - 4) / 512)] * 512 + (userSP - 4) % 512];
+
+alias word R3;
+word = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
+
+alias process_table R4;
+process_table = PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1];
+
+// write system call = 5
+if (fileDescriptor == -2) then
+    multipush(R0, R1, R2, R3);
+
+    alias arg1 R1;
+    alias arg2 R2;
+    alias arg3 R3;
+
+    arg1 = 3;
+    arg2 = [SYSTEM_STATUS_TABLE  + 1];
+    arg3 = word;
+
+    call MOD_4;
+
+    multipop(R0, R1, R2, R3);
+
+    [returnAddress] = 0;
+else
+    if (fileDescriptor < 0 || fileDescriptor > 7) then
+        [returnAddress] = -1;
+        goto exit;
+    endif;
+    alias resourceTable R5;
+    resourceTable = [process_table + 11] * 512 + RESOURCE_TABLE_OFFSET;
+
+    if ([resourceTable + 2 * fileDescriptor] != FILE) then
+        [returnAddress] = -1;
+        goto exit;
+    endif;
+
+    alias openFileTableEntry R6;
+    openFileTableEntry = [resourceTable + 2 * fileDescriptor + 1];
+    alias inodeIndex R7;
+    inodeIndex = [OPEN_FILE_TABLE + 4 * openFileTableEntry];
+
+    if ([process_table + 3] != 1 && [INODE_TABLE + 16 * inodeIndex + 3] != [process_table + 3] && [INODE_TABLE + inodeIndex * 16 + 4] == EXCLUSIVE) then
+        [returnAddress] = -3;
+        goto exit;
+    endif;
+
+    multipush(R1, R2, R3, R4, R5, R6, R7);
+    R1 = 4;
+    R3 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = inodeIndex;
+    call RESOURCE_MANAGER;
+    multipop(R1, R2, R3, R4, R5, R6, R7);
+
+    if (R0 == -1) then
+        [returnAddress] = -1;
+        goto exit;
+    endif;
+
+    alias lSeek R8;
+    lSeek = [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2];
+
+    if (lSeek == MAX_FILE_SIZE) then
+        multipush(R1, R2, R3);
+        R1 = 5;
+        R3 = [SYSTEM_STATUS_TABLE + 1];
+        R2 = inodeIndex;
+        call RESOURCE_MANAGER;
+        multipop(R1, R2, R3);
+        [returnAddress] = -2;
+        goto exit;
+    endif;
+
+    if (lSeek % 512 == 0 && lSeek == [INODE_TABLE + 16 * inodeIndex + 2]) then
+        multipush(R1, R2, R3, R4, R5, R6, R7, R8);
+        R1 = 3;
+        call MEMORY_MANAGER;
+        multipop(R1, R2, R3, R4, R5, R6, R7, R8);
+
+        if (R0 == -1) then
+            multipush(R1, R2, R3);
+            R1 = 5;
+            R3 = [SYSTEM_STATUS_TABLE + 1];
+            R2 = inodeIndex;
+            call RESOURCE_MANAGER;
+            multipop(R1, R2, R3);
+            
+            [returnAddress] = -2;
+            goto exit;
+        endif;
+
+        [INODE_TABLE + 16 * inodeIndex + 8 + (lSeek / 512)] = R0;
+    endif;
+
+    alias blockNumber R9;
+    alias offset R10;
+    blockNumber = [INODE_TABLE + 16 * inodeIndex + 8 + (lSeek / 512)];
+    offset = lSeek % 512;
+    
+    multipush(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10);
+	R1 = 1;
+	R2 = blockNumber;
+	R4 = word;
+	R3 = offset;
+	call FILE_MANAGER;
+	multipop(R1, R2, R3, R4, R5, R6, R7, R8, R9, R10);
+
+    // if size was increasesd
+    if (lSeek == [INODE_TABLE + 16 * inodeIndex + 2]) then
+        [INODE_TABLE + 16 * inodeIndex + 2] = [INODE_TABLE + 16 * inodeIndex + 2] + 1;
+    endif;
+
+    [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2] = [OPEN_FILE_TABLE + 4 * openFileTableEntry + 2] + 1;
+
+    multipush(R1, R2, R3);
+	R1 = 5;
+	R3 = [SYSTEM_STATUS_TABLE + 1];
+	R2 = inodeIndex;
+	call RESOURCE_MANAGER;
+	multipop(R1, R2, R3);
+    [returnAddress] = 0;
+    goto exit;
+endif;
+
+exit:
+    SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+ireturn;

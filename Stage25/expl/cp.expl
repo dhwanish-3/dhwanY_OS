@@ -1,0 +1,49 @@
+int main(){
+decl
+    int temp, fileDesc1, fileDesc2;
+    str word, fileName1, fileName2;
+enddecl
+begin
+
+  // Read fileNames
+  temp = exposcall("Write", -2, "Enter file1 name");
+  temp = exposcall("Read", -1, fileName1);
+
+  // Try to open first file
+  fileDesc1 = exposcall("Open", fileName1);
+  if(fileDesc1 == -1) then
+    temp = exposcall("Write", -2, "File not found");
+  else
+    if(fileDesc1 == -2) then
+      temp = exposcall("Write", -2, "System max file opened");
+    else
+      if(fileDesc1 == -3) then
+        temp = exposcall("Write", -2, "Proc max file opened");
+      endif;
+    endif;
+  endif;
+  temp = exposcall("Write", -2, "Enter file2 name");
+  temp = exposcall("Read", -1, fileName2);
+  // If success, create second file
+  if(fileDesc1 >= 0) then
+    temp = exposcall("Create", fileName2, 1);
+    temp = exposcall("Write", -2, "Creation success");
+    fileDesc2 = exposcall("Open", fileName2);
+    temp = exposcall("Write", -2, "Open success");
+    while(3 == 3) do
+      temp = exposcall("Read", fileDesc1, word);
+      if(temp == -2) then
+        temp = exposcall("Write", -2, "EOF");
+        break;
+      endif;
+      temp = exposcall("Write", -2, word);
+      temp = exposcall("Write", fileDesc2, word);
+    endwhile;
+  endif;
+ 
+  temp = exposcall("Close", fileDesc1);
+  temp = exposcall("Close", fileDesc2);
+  temp = exposcall("Write", -2, "Copied");
+  return 0;
+end
+}
