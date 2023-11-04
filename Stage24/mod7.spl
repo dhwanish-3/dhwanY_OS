@@ -14,6 +14,10 @@ loadi(17, 30);
 loadi(22, 35);
 loadi(23, 36);
 
+// int 8 (fork)
+loadi(18, 31);
+loadi(19, 32);
+
 // Library
 loadi(63, 13);
 loadi(64, 14);
@@ -46,6 +50,22 @@ loadi(15, 28);
 loadi(20, 33);
 loadi(21, 34);
 
+// int 11
+loadi(24, 37);
+loadi(25, 38);
+
+// int 13
+loadi(28, 41);
+loadi(29, 42);
+
+// int 14
+loadi(30, 43);
+loadi(31, 44);
+
+// int 15
+loadi(32, 45);
+loadi(33, 46);
+
 // module 1
 loadi(42, 55);
 loadi(43, 56);
@@ -61,6 +81,24 @@ loadi(60, 4);
 // disk interrupt
 loadi(6, 19);
 loadi(7, 20);
+
+// int4
+loadi(10, 23);
+loadi(11, 24);
+
+// root file
+loadi(62, 5);
+
+// disk free list
+loadi(61, 2);
+
+// module 3
+loadi(46, 59);
+loadi(47, 60);
+
+// int 5
+loadi(12, 25);
+loadi(13, 26);
 
 // memory free list initialization
 alias i R0;
@@ -107,6 +145,7 @@ PTLR = 10;
 [PTBR + 19] = "0110";
 
 [PROCESS_TABLE + 16 + 1] = 1;
+[PROCESS_TABLE + 16 + 3] = 1; // user id
 [PROCESS_TABLE + 16 + 11] = 80;
 [PROCESS_TABLE + 16 + 12] = 0;
 [PROCESS_TABLE + 16 + 13] = 8 * 512;
@@ -122,6 +161,17 @@ while (i < 9) do
     i = i + 1;
 endwhile;
 
+// disk map table initialization for init
+
+[DISK_MAP_TABLE + 10 + 2] = -1;
+[DISK_MAP_TABLE + 10 + 3] = -1;
+[DISK_MAP_TABLE + 10 + 4] = 7;
+[DISK_MAP_TABLE + 10 + 5] = 8;
+[DISK_MAP_TABLE + 10 + 6] = -1;
+[DISK_MAP_TABLE + 10 + 7] = -1;
+[DISK_MAP_TABLE + 10 + 8] = -1;
+[DISK_MAP_TABLE + 10 + 9] = -1;
+
 i = 2;
 while (i < 16) do
     [PROCESS_TABLE + 16 * i + 4] = TERMINATED;
@@ -133,5 +183,38 @@ endwhile;
 [SYSTEM_STATUS_TABLE + 0] = 1;
 [SYSTEM_STATUS_TABLE + 2] = 45;
 [SYSTEM_STATUS_TABLE + 3] = 0;
+
+// initialization of semaphore table
+i = 0;
+while (i < MAX_SEM_COUNT) do
+    [SEMAPHORE_TABLE + i * 4] = -1;
+    [SEMAPHORE_TABLE + i * 4 + 1] = 0;
+    i = i + 1;
+endwhile;
+
+// initialization of file status table
+i = 0;
+while (i < MAX_FILE_NUM) do
+    [FILE_STATUS_TABLE + i * 4 + 0] = -1;
+    [FILE_STATUS_TABLE + i * 4 + 1] = -1;
+    i = i + 1;
+endwhile;
+
+// initialization of buffer table
+i = 0;
+while (i < MAX_BUFFER) do
+    [BUFFER_TABLE + i * 4 + 0] = -1;
+    [BUFFER_TABLE + i * 4 + 1] = 0;
+    [BUFFER_TABLE + i * 4 + 2] = -1;
+    i = i + 1;
+endwhile;
+
+// initialization of open file table
+i = 0;
+while (i < MAX_OPENFILE_NUM) do
+    [OPEN_FILE_TABLE + i * 4 + 0] = -1;
+    [OPEN_FILE_TABLE + i * 4 + 1] = 0;
+    i = i + 1;
+endwhile;
 
 return;
