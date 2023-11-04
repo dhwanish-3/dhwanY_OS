@@ -1,0 +1,281 @@
+// init/login code file
+loadi(65, 7);
+
+// SHELL process
+loadi(67, 9);
+loadi(68, 10);
+
+// library
+loadi(63, 13);
+loadi(64, 14);
+
+// exception handler
+loadi(2, 15);
+loadi(3, 16);
+
+// timer interrupt
+loadi(4, 17);
+loadi(5, 18);
+
+// console-interrupt-handler
+loadi(8,21);
+loadi(9,22);
+
+// DISK interrupt
+loadi(6, 19);
+loadi(7, 20);
+
+// int4
+loadi(10, 23);
+loadi(11, 24);
+
+// int5
+loadi(12, 25);
+loadi(13, 26);
+
+// int6
+loadi(14, 27);
+loadi(15, 28);
+
+// int7
+loadi(16, 29);
+loadi(17, 30);
+
+// INT_8
+loadi(18,31);
+loadi(19,32);
+
+// INT_9 
+loadi(20,33);
+loadi(21,34);
+
+// INT_10
+loadi(22, 35);
+loadi(23, 36);
+
+// INT_11
+loadi(24, 37);
+loadi(25, 38);
+
+// INT_12
+loadi(26, 39);
+loadi(27, 40);
+
+// INT_13
+loadi(28, 41);
+loadi(29, 42);
+
+// INT_14
+loadi(30, 43);
+loadi(31, 44);
+
+// INT_15
+loadi(32, 45);
+loadi(33, 46);
+
+// INT_16
+loadi(34, 47);
+loadi(35, 48);
+
+// INT_17
+loadi(36, 49);
+loadi(37, 50);
+
+// module 0
+loadi(40, 53);
+loadi(41, 54);
+
+// module 1
+loadi(42, 55);
+loadi(43, 56);
+
+// module 2
+loadi(44, 57);
+loadi(45, 58);
+
+// module 3
+loadi(46, 59);
+loadi(47, 60);
+
+// module 4
+loadi(48, 61);
+loadi(49, 62);
+
+// module  6
+loadi(52, 65);
+loadi(53, 66);
+
+// inode table
+loadi(59, 3);
+loadi(60, 4);
+
+// DISK_FREE_LIST
+loadi(61, 2);
+
+// root file
+loadi(62, 5);
+
+PTBR = PAGE_TABLE_BASE + 20;
+PTLR = 10;
+
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+[PTBR + 4] = -1;
+[PTBR + 5] = "0000";
+[PTBR + 6] = -1;
+[PTBR + 7] = "0000";
+[PTBR + 8] = 65;
+[PTBR + 9] = "0100";
+[PTBR + 10] = -1;
+[PTBR + 11] = "0000";
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+[PTBR + 16] = 66;
+[PTBR + 17] = "0110";
+[PTBR + 18] = -1;
+[PTBR + 19] = "0000";
+
+[66 * 512] = [65 * 512 + 1];
+
+alias processTable R1;
+processTable = PROCESS_TABLE + 16;
+
+[processTable + 0] = 0; // tick
+[processTable + 1] = 1;
+[processTable + 3] = 1; // userid of root
+[processTable + 4] = CREATED;
+[processTable + 11] = 77;
+[processTable + 12] = 0;
+[processTable + 13] = 8 * 512;
+[processTable + 14] = PTBR;
+[processTable + 15] = PTLR;
+
+alias i R0;
+
+// memory free list initialization
+i = 0;
+while (i < 128) do
+    if (i < 83) then
+        [MEMORY_FREE_LIST  + i] = 1;
+    else
+        [MEMORY_FREE_LIST + i] = 0;
+    endif;
+    i = i + 1;
+endwhile;
+
+// per-process resource table for init
+alias resourceTable R2;
+resourceTable = [processTable + 11] * 512 + RESOURCE_TABLE_OFFSET;
+i = 0;
+while (i < 16) do
+    [resourceTable + i] = -1;
+    i = i + 2;
+endwhile;
+
+// initialization of semaphore table & open file table
+i = 0;
+while (i < MAX_SEM_COUNT) do
+    [SEMAPHORE_TABLE + i * 4] = -1;
+    [SEMAPHORE_TABLE + i * 4 + 1] = 0;
+
+    [OPEN_FILE_TABLE + i * 4 + 0] = -1;
+    [OPEN_FILE_TABLE + i * 4 + 1] = 0;
+
+    i = i + 1;
+endwhile;
+
+// initialization of file status table
+i = 0;
+while (i < MAX_FILE_NUM) do
+    [FILE_STATUS_TABLE + i * 4 + 0] = -1;
+    [FILE_STATUS_TABLE + i * 4 + 1] = -1;
+    i = i + 1;
+endwhile;
+
+// initialization of buffer table
+i = 0;
+while (i < MAX_BUFFER) do
+    [BUFFER_TABLE + i * 4 + 0] = -1;
+    [BUFFER_TABLE + i * 4 + 1] = 0;
+    [BUFFER_TABLE + i * 4 + 2] = -1;
+    i = i + 1;
+endwhile;
+
+// SHELL //
+
+PTBR = PAGE_TABLE_BASE + 40;
+PTLR = 10;
+
+[PTBR + 0] = 63;
+[PTBR + 1] = "0100";
+[PTBR + 2] = 64;
+[PTBR + 3] = "0100";
+
+[PTBR + 4] = -1;
+[PTBR + 5] = "0000";
+[PTBR + 6] = -1;
+[PTBR + 7] = "0000";
+
+[PTBR + 8] = 67;
+[PTBR + 9] = "0100";
+[PTBR + 10] = 68;
+[PTBR + 11] = "0100";
+
+[PTBR + 12] = -1;
+[PTBR + 13] = "0000";
+[PTBR + 14] = -1;
+[PTBR + 15] = "0000";
+
+[PTBR + 16] = 78;
+[PTBR + 17] = "0110";
+[PTBR + 18] = 79;
+[PTBR + 19] = "0110";
+
+[78 * 512] = [67 * 512 + 1];
+
+processTable = PROCESS_TABLE + 32;
+
+[processTable + 0] = 0; // tick
+[processTable + 1] = 2; // process id of SHELL is 1
+[processTable + 2] = 1; // parent id of SHELL is 1
+[processTable + 4] = TERMINATED;
+[processTable + 11] = 80; //first available free page is 80 (0 - 79 are system reserved)
+[processTable + 12] = 0;
+[processTable + 13] = 8*512;
+[processTable + 14] = PAGE_TABLE_BASE + 40;
+[processTable + 15] = 10;
+
+// disk map table initialization
+alias diskMapTable R1;
+diskMapTable = DISK_MAP_TABLE + 20;
+i = 0;
+while (i < 10) do
+    [diskMapTable + i] = -1;
+    i = i + 1;
+endwhile;
+
+[diskMapTable + 4] = 9;
+[diskMapTable + 5] = 10;
+
+//setting all other processes to terminated
+i = 0;
+while (i < 16) do
+    if (i > 2) then
+        [PROCESS_TABLE + 16 * i + 4] = TERMINATED;
+    endif;
+    [PROCESS_TABLE + 16 * i] = 0;
+    i = i + 1;
+endwhile;
+
+[TERMINAL_STATUS_TABLE] = 0;
+[DISK_STATUS_TABLE] = 0;
+[SYSTEM_STATUS_TABLE + 2] = 45;
+[SYSTEM_STATUS_TABLE + 3] = 0;
+[SYSTEM_STATUS_TABLE + 4] = 0;
+[SYSTEM_STATUS_TABLE + 5] = 0;
+
+return;

@@ -21,7 +21,7 @@ int main() {
             temp = exposcall("Read", fileDesc, owner);
 
             if (owner == username AND fileName != "-1") then 
-                temp = exposcall("Write", -2, fileName);
+                // temp = exposcall("Write", -2, fileName);
                 temp = exposcall("Delete", fileName);
             endif;
 
