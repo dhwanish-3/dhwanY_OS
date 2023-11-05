@@ -90,8 +90,8 @@ int merge(str out, str in1, str in2)
     x=exposcall("Close", fp2);
 
     //Delete the input files
-    // x=exposcall("Delete", in1);
-    // x=exposcall("Delete", in2);
+    x=exposcall("Delete", in1);
+    x=exposcall("Delete", in2);
 
     write("Merged");
     return 0;
@@ -146,7 +146,7 @@ int main()
 
     // Merge "tempa.dat" and "tempb.dat" into "merge.dat"
     //which contains numbers from 1 to 2048 in sorted order
-    // x=merge("merge.dat", "tempa.dat", "tempb.dat");
+    x=merge("merge.dat", "tempa.dat", "tempb.dat");
 
     return 1;
   end
