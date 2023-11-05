@@ -1,0 +1,18 @@
+int main() {
+    decl
+        int user, temp;
+        int username;
+    enddecl 
+
+    begin 
+        user = 0;
+        while (user < 16) do 
+            username = exposcall("Getuname", user);
+            if (username != -1) then 
+                temp = exposcall("Write", -2, username);
+            endif;
+            user = user + 1;
+        endwhile;
+        return 0;
+    end
+}

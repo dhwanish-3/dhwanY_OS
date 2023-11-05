@@ -1,0 +1,34 @@
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 28;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+alias userSP R0;
+userSP = SP;
+
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+alias returnAddress R1;
+
+returnAddress = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
+
+if ([SYSTEM_STATUS_TABLE + 1] != 2) then 
+    [returnAddress] = -1;
+else
+    multipush(R0, R1); // KILL_ALL
+    R1 = 5;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    call PROCESS_MANAGER;
+    multipush(R0, R1);
+
+    [PROCESS_TABLE + 32 + 4] = TERMINATED;
+    [[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1]; // reset entry point
+    [PROCESS_TABLE + 16 + 4] = READY;
+    [PROCESS_TABLE + 32 + 13] = 8 * 512;
+    [SYSTEM_STATUS_TABLE] = 0;
+
+    multipush(R0, R1);
+    call SCHEDULER;
+    multipop(R0, R1);
+endif;
+
+SP = userSP;
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+ireturn;

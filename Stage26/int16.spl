@@ -1,0 +1,161 @@
+alias userSP R0;
+userSP = SP;
+
+alias callNumber R1;
+callNumber = [[PTBR + 2 * (userSP - 5)/512] * 512 + (userSP - 5) % 512];
+
+alias username R2;
+username = [[PTBR + 2 * (userSP - 4) / 512] * 512 + (userSP - 4) % 512];
+
+alias returnAddress R4;
+returnAddress = [PTBR + 2 * (userSP - 1) / 512] * 512 + (userSP - 1) % 512;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = callNumber;
+
+// Newuser
+if (callNumber == 22) then 
+    if ([SYSTEM_STATUS_TABLE] != ROOT || [SYSTEM_STATUS_TABLE + 1] != 2) then
+        [returnAddress] = -2; // no permission
+    else 
+        alias password R3;
+        password = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + (userSP - 3) % 512];
+
+        alias i R5;
+        i = 0;
+
+        while (i < MAX_USER_NUM) do
+            if ([USER_TABLE + i * 2 + 0] == username || [USER_TABLE + i * 2 + 0] == -1) then 
+                break;
+            endif;
+            i = i + 1;
+        endwhile;
+
+        if (i == MAX_USER_NUM) then 
+            [returnAddress] = -3;
+        else
+            if ([USER_TABLE + i * 2 + 0] == username) then
+                [returnAddress] = -1; // user already exists
+            else
+                alias encPassword R6;
+                encPassword = password;
+                encrypt encPassword;
+                [USER_TABLE + i * 2 + 0] = username;
+                [USER_TABLE + i * 2 + 1] = encPassword;
+
+                [returnAddress] = 0;
+            endif;
+        endif;
+    endif;
+endif;
+
+// Remuser
+if(callNumber == 23) then
+    if ([SYSTEM_STATUS_TABLE] != ROOT || [SYSTEM_STATUS_TABLE + 1] != 2) then
+        [returnAddress] = -2;
+    else
+        if (username == "kernel" || username == "root") then
+            [returnAddress] = -2;
+        else
+            alias i R5;
+            i = 0;
+            while (i < MAX_USER_NUM) do
+                if ([USER_TABLE + i * 2 + 0] == username) then
+                    break;
+                endif;
+                i = i + 1;
+            endwhile;
+
+            if (i == MAX_USER_NUM) then
+                [returnAddress] = -1;
+            else
+                alias userFiles R6;
+                userFiles = 0;
+                while (userFiles < MAX_FILE_NUM) do
+                    if ([ROOT_FILE + userFiles * 8 + 3] == username) then 
+                        break;
+                    endif;
+                    userFiles = userFiles + 1;
+                endwhile;
+
+                if (userFiles != MAX_FILE_NUM) then
+                    [returnAddress] = -3;
+                else
+                    [USER_TABLE + i * 2 + 0] = -1;
+                    [USER_TABLE + i * 2 + 1] = -1;
+                    [returnAddress] = 0;
+                endif;
+            endif;
+        endif;
+    endif;
+endif;
+
+// Set password
+if (callNumber == 24) then 
+    if ([SYSTEM_STATUS_TABLE + 1] != 2) then 
+        [returnAddress] = -1;
+    else
+        alias password R3;
+        password = [[PTBR + 2 * (userSP - 3) / 512] * 512 + (userSP - 3) % 512];
+
+        alias i R5;
+        i = 0;
+        while (i < MAX_USER_NUM) do
+            if ([USER_TABLE + i * 2 + 0] == username) then
+                break;
+            endif;
+            i = i + 1;
+        endwhile;
+
+        if (i == MAX_USER_NUM) then 
+            [returnAddress] = -2;
+        else
+            if (i != [SYSTEM_STATUS_TABLE] && [SYSTEM_STATUS_TABLE] != ROOT) then
+                [returnAddress] = -1;
+            else
+                alias encPassword R6;
+                encPassword = password;
+                encrypt encPassword;
+                [USER_TABLE + i * 2 + 1] = encPassword;
+
+                [returnAddress] = 0;
+            endif;
+        endif;
+    endif;
+endif;
+
+//Getuname
+if (callNumber == 25) then 
+    alias userID R2;
+
+    if (userID < 0 || userID > MAX_USER_NUM) then 
+        [returnAddress] = -1;
+    else
+        if ([USER_TABLE + userID * 2 + 0] == -1) then 
+            [returnAddress] = -1;
+        else
+            [returnAddress] = [USER_TABLE + userID * 2 + 0];
+        endif;
+    endif;
+endif;
+
+//Getuid
+if (callNumber == 26) then
+    alias i R5;
+    i = 0;
+
+    while (i < MAX_USER_NUM) do
+        if ([USER_TABLE + i * 2 + 0] == username) then 
+            break;
+        endif;
+        i = i + 1;
+    endwhile;
+
+    if (i == MAX_USER_NUM) then   
+        [returnAddress] = -1;
+    else
+        [returnAddress] = i;
+    endif;
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+ireturn;
