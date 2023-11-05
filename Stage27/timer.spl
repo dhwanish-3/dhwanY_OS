@@ -1,0 +1,55 @@
+// Store user SP to UPTR in process table -> 13 th word
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+
+// Set SP to start of Kernel stack
+SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
+
+backup;
+
+if ([SYSTEM_STATUS_TABLE + 5] != 0) then 
+    if ([SYSTEM_STATUS_TABLE + 1] == SWAPPER_DAEMON) then 
+        R1 = [SYSTEM_STATUS_TABLE + 5];
+        R2 = [SYSTEM_STATUS_TABLE + 1];
+        call PAGER_MODULE;
+    endif;
+else
+    if ([SYSTEM_STATUS_TABLE + 2] < MEM_LOW) then 
+        [SYSTEM_STATUS_TABLE + 5] = SWAP_OUT;
+    else
+        if ([SYSTEM_STATUS_TABLE + 4] > 0) then    
+            if ([SYSTEM_STATUS_TABLE + 2] > MEM_HIGH) then
+                [SYSTEM_STATUS_TABLE + 5] = SWAP_IN;
+            else
+                alias i R0;
+                i = 0;
+                while (i < MAX_PROC_NUM) do
+                    if ([PROCESS_TABLE + i * 16 + 6] == 1 && [PROCESS_TABLE + i * 16 + 0] > MAX_TICK) then
+                        [SYSTEM_STATUS_TABLE + 5] = SWAP_IN;
+                        break;
+                    endif;
+                    i = i + 1;
+                endwhile;
+            endif;
+        endif;
+    endif;
+endif;
+
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 4] = READY; 
+
+// increment tick values
+alias i R0;
+i = 0;
+while (i < MAX_PROC_NUM) do
+    [PROCESS_TABLE + i * 16] = [PROCESS_TABLE + i * 16] + 1; 
+    i = i + 1;
+endwhile;
+
+call MOD_5;
+
+restore;
+
+SP = [PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 13];
+[PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 12] = 0;
+[PROCESS_TABLE + 16 * [SYSTEM_STATUS_TABLE + 1] + 9] = 0;
+
+ireturn;

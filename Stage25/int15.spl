@@ -3,7 +3,7 @@ SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 11] * 512 - 1;
 
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 21;
 
-if ([SYSTEM_STATUS_TABLE + 1] != 1 && [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 3] != 1) then
+if ([SYSTEM_STATUS_TABLE + 1] != 1 || [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 3] != 1) then
     SP = [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 13];
     [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
     ireturn;
@@ -28,28 +28,28 @@ else
     endwhile;
     // inode table
     R1 = 1;
-    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = 1;
     R3 = 59;
     R4 = 3;
     call DEVICE_MANAGER;
 
     // user table
     R1 = 1;
-    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = 1;
     R3 = 60;
     R4 = 4;
     call DEVICE_MANAGER;
 
     // root file
     R1 = 1;
-    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = 1;
     R3 = 62;
     R4 = 5;
     call DEVICE_MANAGER;
 
     // disk free list
     R1 = 1;
-    R2 = [SYSTEM_STATUS_TABLE + 1];
+    R2 = 1;
     R3 = 61;
     R4 = 2;
     call DEVICE_MANAGER;
