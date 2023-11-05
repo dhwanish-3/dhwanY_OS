@@ -17,6 +17,4 @@ done
 
 
 cd ../xfs-interface
-pwd
 ./xfs-interface
-run stage25.sh
