@@ -38,7 +38,7 @@ endif;
 
 // increment tick values
 alias i R0;
-i = 0;
+i = 0; 
 while (i < MAX_PROC_NUM) do
     [PROCESS_TABLE + i * 16] = [PROCESS_TABLE + i * 16] + 1; 
     i = i + 1;

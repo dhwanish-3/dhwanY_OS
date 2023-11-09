@@ -45,7 +45,7 @@ if (fileDescriptor != -1) then // File Read
 
                 alias wordAddress R7;
                 wordAddress = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + (userSP - 3) % 512];
-                wordAddress = [PTBR + 2 * (wordAddress) / 512] * 512 + wordAddress % 512;
+                wordAddress = [PTBR + 2 * (wordAddress / 512)] * 512 + wordAddress % 512;
 
                 if (inodeIndex == INODE_ROOT) then
                     if ([lSeek] == 480) then

@@ -55,7 +55,7 @@ PTLR = [process_table_entry + 15];
 
 [SYSTEM_STATUS_TABLE + 1] = newPID;
 
-if (state == CREATED) then
+if ([process_table_entry + 4] == CREATED) then
     SP = [process_table_entry + 13];
     BP = [[process_table_entry + 11] * 512];
     [process_table_entry + 4] = RUNNING;
