@@ -62,3 +62,11 @@ rm assgn3.xsm
 load --exec $HOME/myexpos/Stage27/Assgn/assgn3.xsm
 rm assgn4.xsm
 load --exec $HOME/myexpos/Stage27/Assgn/assgn4.xsm
+rm merge.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/merge.xsm
+rm m_store.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_store.xsm
+rm m_sort.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_sort.xsm
+rm m_merge.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_merge.xsm

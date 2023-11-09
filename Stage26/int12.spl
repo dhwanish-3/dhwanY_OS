@@ -8,9 +8,8 @@ SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 alias returnAddress R1;
 
 returnAddress = [PTBR + 2 * ((userSP - 1) / 512)] * 512 + (userSP - 1) % 512;
-print "logout";
+
 if ([SYSTEM_STATUS_TABLE + 1] != 2) then 
-print "-1";
     [returnAddress] = -1;
 else
     multipush(R0, R1); // KILL_ALL
@@ -18,7 +17,7 @@ else
     R2 = [SYSTEM_STATUS_TABLE + 1];
     call PROCESS_MANAGER;
     multipop(R0, R1);
-print "killed";
+
     [PROCESS_TABLE + 32 + 4] = TERMINATED;
     [[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1]; // reset entry point
     [PROCESS_TABLE + 16 + 4] = READY;
