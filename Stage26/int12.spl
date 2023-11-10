@@ -16,7 +16,7 @@ else
     R1 = 5;
     R2 = [SYSTEM_STATUS_TABLE + 1];
     call PROCESS_MANAGER;
-    multipush(R0, R1);
+    multipop(R0, R1);
 
     [PROCESS_TABLE + 32 + 4] = TERMINATED;
     [[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1]; // reset entry point
@@ -30,5 +30,5 @@ else
 endif;
 
 SP = userSP;
-[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 ireturn;

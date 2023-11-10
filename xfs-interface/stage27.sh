@@ -42,8 +42,6 @@ rm ru.xsm
 load --exec $HOME/myexpos/Stage26/expl/ru.xsm
 rm sample.dat
 load --data $HOME/myexpos/sample.dat
-rm numbers.dat
-load --data $HOME/myexpos/Stage24/Assgn1/numbers.dat
 rm open.xsm
 load --exec $HOME/myexpos/Stage24/Assgn1/open.xsm
 rm create.xsm
@@ -62,3 +60,13 @@ rm assgn2.xsm
 load --exec $HOME/myexpos/Stage27/Assgn/assgn2.xsm
 rm assgn3.xsm
 load --exec $HOME/myexpos/Stage27/Assgn/assgn3.xsm
+rm assgn4.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/assgn4.xsm
+rm merge.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/merge.xsm
+rm m_store.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_store.xsm
+rm m_sort.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_sort.xsm
+rm m_merge.xsm
+load --exec $HOME/myexpos/Stage27/Assgn/m_merge.xsm
