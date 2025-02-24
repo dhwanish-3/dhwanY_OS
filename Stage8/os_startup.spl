@@ -21,7 +21,7 @@ loadi(3,16);
 // initializing PTBR to default - 29696
 PTBR = PAGE_TABLE_BASE;
 
-// INIT Program needs 3 pages of memory
+// INIT Program needs 10 pages of memory
 PTLR = 10;
 
 // initialize page table for INIT Program
