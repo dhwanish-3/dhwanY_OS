@@ -1,7 +1,7 @@
 # dhwanY_OS
-## Expos NITC OS Lab Projecrt
+## Expos NITC OS Lab Project
 
-Project files for the Operating Systems Lab at NITC
+Expos Nitc is the experimental operating system developed using XSM architecture & XFS interface.
 
 ## Overview
 
