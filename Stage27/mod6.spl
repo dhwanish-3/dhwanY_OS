@@ -28,7 +28,7 @@ if (functionNum == SWAP_OUT) then
 
             alias tempPCB R13;
             tempPCB = PROCESS_TABLE + counter*16;
-            if ([tempPCB+4] != TERMINATED && [tempPCB+4] != ALLOCATED && [tempPCB] != RUNNING) then
+            if ([tempPCB+4] != TERMINATED && [tempPCB+4] != ALLOCATED && [tempPCB + 4] != RUNNING) then
                 if ([tempPCB] > maxTICK) then
                     maxTICK = [tempPCB];
                     maxTickPID = counter;
