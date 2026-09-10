@@ -6,7 +6,7 @@
 
    YYSTYPE yylval;
 
-   int machine_serve_instruction (char *buffer, yy_size_t *read_bytes, int max);
+   int machine_serve_instruction (char *buffer, unsigned long *read_bytes, int max);
 
    void lexer_buffer_reset ()
    {
@@ -15,7 +15,9 @@
 
    #define YY_INPUT(buffer,read_bytes,max)\
    {\
-      machine_serve_instruction(buffer,&read_bytes,max);\
+      unsigned long temp_read_bytes = (unsigned long)read_bytes;\
+      machine_serve_instruction(buffer,&temp_read_bytes,max);\
+      read_bytes = (int)temp_read_bytes;\
    }\
 
 %}

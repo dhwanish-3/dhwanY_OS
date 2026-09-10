@@ -49,7 +49,7 @@ int codegen(struct ASTNode *root)
 	if (root->nodetype == NODE_EXPR)
 	{
 		tree_iter = 0;
-		Arg_callee = root->ptr3;
+		Arg_callee = (struct Paramstruct *)root->ptr3;
 		Argtemp = Arg_callee;
 		while (Argtemp != NULL)
 		{
@@ -791,7 +791,7 @@ int codegen(struct ASTNode *root)
 			else
 			{
 				if ((temp->ptr3->nodetype == NODE_ID) || (temp->ptr3->nodetype == NODE_FIELD) || (temp->ptr3->nodetype == NODE_ARRAY))
-					Argtemp = temp->ptr3->ptr3;
+					Argtemp = (struct Paramstruct *)temp->ptr3->ptr3;
 				a = codegen(temp->ptr3);
 				fprintf(intermediate, "PUSH R%d\n", a);
 				freereg();

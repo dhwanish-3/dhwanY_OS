@@ -1,3 +1,6 @@
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
+
 #include <string.h>
 void yyerror(char const *s);
 #define SYMBOL_INTEGER 1
@@ -68,3 +71,5 @@ struct Lsymbol
 struct Lsymbol *Lhead, *Ltail;
 struct Lsymbol *LLookup(char *name);
 void LInstall(char *name, struct Typetable *type);
+
+#endif

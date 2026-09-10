@@ -695,7 +695,7 @@ Expr : Expr PLUS Expr       {
         |ID '(' exprlist ')'{
         						type_assign_arr($1, $3, 1);
 
-                                $3->ptr3 = Gtemp->paramlist;
+                                $3->ptr3 = (struct ASTNode *)Gtemp->paramlist;
                                 Arg_callee = Gtemp->paramlist;
                                 while (Arg_callee != NULL)
                                 {
@@ -711,16 +711,16 @@ Expr : Expr PLUS Expr       {
                                 //differentiating b/w one and more than one arguments
                                 if (indicator == 1)
                                 {
-                                    $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, Gtemp->paramlist, NULL, $3, NULL);
+                                    $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, (struct ASTNode *)Gtemp->paramlist, NULL, $3, NULL);
                                     indicator = 0;
                                 }
 
                                 else
-                                    $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, Gtemp->paramlist, NULL, NULL, $3);
+                                    $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, (struct ASTNode *)Gtemp->paramlist, NULL, NULL, $3);
                             }
         |ID '(' ')' 		{
     							type_assign_arr($1, NULL, 1);
-                                $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, Gtemp->paramlist, NULL, NULL, NULL);
+                                $$ = TreeCreate($1->type, NODE_FUNC, $1->name, NULL, (struct ASTNode *)Gtemp->paramlist, NULL, NULL, NULL);
                             }
 	    | ID DEQNILL 		{
 	   						    type_assign($1, NULL, 1, 0, 0, 0, 0);
@@ -731,11 +731,11 @@ Expr : Expr PLUS Expr       {
 	                        	$$ = TreeCreate(TLookup("boolean"), NODE_NEQ, NULL, NULL, NULL, $1, $2, NULL);
 	        				}
         | FIELD DEQNILL 	{
-	                            type_comp($1, NULL, '=');
+	                            type_comp($1->type, NULL, '=');
 	                            $$ = TreeCreate(TLookup("boolean"), NODE_DEQ, NULL, NULL, NULL, $1, $2, NULL);
 	        				}
         | FIELD NEQNILL 	{
-	                            type_comp($1, NULL, '^');
+	                            type_comp($1->type, NULL, '^');
 	                            $$ = TreeCreate(TLookup("boolean"), NODE_NEQ, NULL, NULL, NULL, $1, $2, NULL);
 	        				}
         ;

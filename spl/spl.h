@@ -49,4 +49,4 @@ void codegen(node *root);
 
 int yylex();
 int yyparse();
-int yyerror();
+int yyerror(char *msg);
