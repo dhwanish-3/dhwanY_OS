@@ -1,7 +1,41 @@
 # dhwanY_OS
-## Expos NITC OS Lab Project
+## NITC OS Lab Project
 
-Expos Nitc is the experimental operating system developed using XSM architecture & XFS interface.
+ExpOs NITC is the experimental operating system developed using XSM architecture & XFS interface.
+
+## Setting Up
+1. Install the prerequisites: GCC, Make, Readline, Flex/Lex, and Bison/Yacc.
+
+### Debian-based Linux distributions
+
+```bash
+sudo apt-get install libreadline-dev flex bison make gcc wget curl
+```
+
+### Red Hat-based Linux distributions
+
+```bash
+sudo yum install readline-devel flex flex-devel byacc make gcc wget curl
+```
+
+### Arch Linux
+
+```bash
+sudo pacman -S readline flex bison make gcc wget curl
+```
+
+2. Clone the repository
+
+```bash
+git clone https://github.com/dhwanish-3/dhwanY_OS.git
+```
+
+3. Make to build all components
+```bash
+cd dhwanY_OS
+make
+```
+
 
 ## Overview
 
